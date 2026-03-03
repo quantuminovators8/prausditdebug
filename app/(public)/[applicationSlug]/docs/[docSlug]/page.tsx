@@ -46,9 +46,7 @@ export default async function DocPage({
     ORDER BY sort_order ASC, created_at ASC
   `;
 
-  const currentIndex = allDocs.findIndex(
-    (d: { id: number }) => d.id === doc.id
-  );
+  const currentIndex = allDocs.findIndex((d) => d.id === doc.id);
   const prevDoc = currentIndex > 0 ? allDocs[currentIndex - 1] : null;
   const nextDoc =
     currentIndex < allDocs.length - 1 ? allDocs[currentIndex + 1] : null;
@@ -71,8 +69,7 @@ export default async function DocPage({
             In this section
           </h3>
           <div className="flex flex-col gap-2">
-            {children.map(
-              (child: { id: number; title: string; slug: string }) => (
+            {children.map((child) => (
                 <Link
                   key={child.id}
                   href={`/${applicationSlug}/docs/${child.slug}`}

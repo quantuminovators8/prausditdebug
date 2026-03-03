@@ -56,8 +56,7 @@ export default async function DocsIndexPage({
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {docs.map(
-            (doc: { id: number; title: string; slug: string }) => (
+          {docs.map((doc) => (
               <Link
                 key={doc.id}
                 href={`/${applicationSlug}/docs/${doc.slug}`}

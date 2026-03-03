@@ -87,8 +87,7 @@ export default async function ApplicationPage({
               </Button>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              {docs.map(
-                (doc: { id: number; title: string; slug: string }) => (
+              {docs.map((doc) => (
                   <Link
                     key={doc.id}
                     href={`/${applicationSlug}/docs/${doc.slug}`}
