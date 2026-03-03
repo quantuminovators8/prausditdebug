@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Code2, Users, Microscope } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 const roles = [
   {
@@ -34,7 +35,7 @@ export function CommunitySection() {
     <section className="py-24 px-6">
       <div className="mx-auto max-w-6xl">
         <div className="mb-16 text-center">
-          <p className="mb-3 text-sm font-medium uppercase tracking-widest text-[var(--neon-cyan)]">
+          <p className="mb-3 text-sm font-medium uppercase tracking-widest text-primary">
             Community
           </p>
           <h2 className="mb-6 text-3xl font-bold text-foreground text-balance md:text-4xl">
@@ -48,27 +49,29 @@ export function CommunitySection() {
 
         <div className="grid gap-6 md:grid-cols-3">
           {roles.map((role) => (
-            <div
+            <Card
               key={role.title}
-              className="glass flex flex-col rounded-xl p-8 transition-all hover:neon-glow-purple"
+              className="flex flex-col rounded-2xl border-border bg-card transition-all duration-300 hover:shadow-md hover:scale-[1.02] dark:hover:shadow-[0_0_20px_rgba(138,43,226,0.06)]"
             >
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--neon-purple)]/10">
-                <role.icon size={28} className="text-[var(--neon-purple)]" />
-              </div>
-              <h3 className="mb-3 text-lg font-semibold text-foreground">
-                {role.title}
-              </h3>
-              <p className="mb-6 flex-1 text-sm leading-relaxed text-muted-foreground">
-                {role.description}
-              </p>
-              <Button
-                asChild
-                variant="outline"
-                className="border-[var(--neon-purple)]/30 text-[var(--neon-purple)] hover:bg-[var(--neon-purple)]/10 hover:text-[var(--neon-purple)]"
-              >
-                <Link href={role.href}>{role.cta}</Link>
-              </Button>
-            </div>
+              <CardContent className="flex flex-1 flex-col p-8">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent/10">
+                  <role.icon size={28} className="text-accent" />
+                </div>
+                <h3 className="mb-3 text-lg font-semibold text-card-foreground">
+                  {role.title}
+                </h3>
+                <p className="mb-6 flex-1 text-sm leading-relaxed text-muted-foreground">
+                  {role.description}
+                </p>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="rounded-full border-border hover:border-accent/30 hover:bg-accent/5 font-medium"
+                >
+                  <Link href={role.href}>{role.cta}</Link>
+                </Button>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>

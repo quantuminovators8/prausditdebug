@@ -38,7 +38,7 @@ export default async function SettingsPage() {
           </div>
           <div className="flex items-center justify-between border-b border-border pb-3">
             <span className="text-sm text-muted-foreground">Role</span>
-            <span className="rounded-full bg-[var(--neon-cyan)]/10 px-3 py-1 text-xs font-medium capitalize text-[var(--neon-cyan)]">
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium capitalize text-primary">
               {user?.role}
             </span>
           </div>

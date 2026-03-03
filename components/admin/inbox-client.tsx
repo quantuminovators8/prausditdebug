@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { ContactSubmission } from "@/lib/types";
@@ -94,9 +95,9 @@ export function InboxClient({
             key={s.id}
             onClick={() => openMessage(s)}
             className={cn(
-              "flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-secondary",
+              "flex items-start gap-3 px-4 py-3 text-left transition-all duration-200 hover:bg-secondary",
               selectedId === s.id && "bg-secondary",
-              !s.is_read && "bg-[var(--neon-cyan)]/[0.02]"
+              !s.is_read && "bg-primary/[0.03]"
             )}
           >
             <div className="mt-1 shrink-0">
@@ -105,7 +106,7 @@ export function InboxClient({
               ) : (
                 <Circle
                   size={8}
-                  className="mt-1 fill-[var(--neon-cyan)] text-[var(--neon-cyan)]"
+                  className="mt-1 fill-primary text-primary"
                 />
               )}
             </div>
@@ -145,7 +146,7 @@ export function InboxClient({
   // Message detail view
   if (selected) {
     return (
-      <div className="rounded-xl border border-border bg-card">
+      <Card className="rounded-2xl border-border">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <Button
             variant="ghost"
@@ -179,7 +180,7 @@ export function InboxClient({
             </Button>
           </div>
         </div>
-        <div className="p-6">
+        <CardContent className="p-6">
           <h2 className="mb-4 text-xl font-semibold text-foreground">
             {selected.subject}
           </h2>
@@ -203,16 +204,16 @@ export function InboxClient({
               {new Date(selected.created_at).toLocaleString()}
             </div>
           </div>
-          <div className="whitespace-pre-wrap rounded-lg border border-border bg-secondary p-4 text-sm leading-relaxed text-foreground">
+          <div className="whitespace-pre-wrap rounded-xl border border-border bg-secondary p-4 text-sm leading-relaxed text-foreground">
             {selected.message}
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card">
+    <Card className="rounded-2xl border-border">
       {/* Search & Filter bar */}
       <div className="flex flex-col gap-3 border-b border-border p-4 sm:flex-row sm:items-center">
         <div className="relative flex-1">
@@ -224,7 +225,7 @@ export function InboxClient({
             placeholder="Search messages..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-input pl-9 border-border text-foreground placeholder:text-muted-foreground"
+            className="pl-9 bg-input border-border"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -234,11 +235,12 @@ export function InboxClient({
               size="sm"
               variant={filter === f ? "default" : "outline"}
               onClick={() => setFilter(f)}
-              className={
+              className={cn(
+                "rounded-full",
                 filter === f
-                  ? "bg-[var(--neon-cyan)] text-[var(--background)] hover:bg-[var(--neon-cyan)]/90"
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
                   : "border-border text-muted-foreground hover:text-foreground"
-              }
+              )}
             >
               <span className="capitalize">{f}</span>
             </Button>
@@ -252,13 +254,13 @@ export function InboxClient({
           <TabsList className="h-auto bg-transparent p-0">
             <TabsTrigger
               value="developer"
-              className="rounded-none border-b-2 border-transparent px-4 py-3 text-sm data-[state=active]:border-[var(--neon-cyan)] data-[state=active]:text-[var(--neon-cyan)] data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              className="rounded-none border-b-2 border-transparent px-4 py-3 text-sm data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
             >
               Developer
             </TabsTrigger>
             <TabsTrigger
               value="user"
-              className="rounded-none border-b-2 border-transparent px-4 py-3 text-sm data-[state=active]:border-[var(--neon-purple)] data-[state=active]:text-[var(--neon-purple)] data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              className="rounded-none border-b-2 border-transparent px-4 py-3 text-sm data-[state=active]:border-accent data-[state=active]:text-accent data-[state=active]:bg-transparent data-[state=active]:shadow-none"
             >
               User
             </TabsTrigger>
@@ -280,6 +282,6 @@ export function InboxClient({
           <MessageList role="anonymous" />
         </TabsContent>
       </Tabs>
-    </div>
+    </Card>
   );
 }

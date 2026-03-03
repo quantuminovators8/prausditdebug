@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Copy, Check } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface TocItem {
   id: string;
@@ -17,7 +17,6 @@ export function DocContent({
   content: string;
 }) {
   const [toc, setToc] = useState<TocItem[]>([]);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     // Parse headings from HTML content for TOC
@@ -48,7 +47,7 @@ export function DocContent({
   const contentWithCopy = processedContent.replace(
     /<pre><code([^>]*)>([\s\S]*?)<\/code><\/pre>/g,
     (_match, attrs, code) => {
-      return `<div class="relative group"><pre><code${attrs}>${code}</code></pre><button class="copy-btn absolute top-2 right-2 opacity-0 group-hover:opacity-100 rounded-md bg-secondary px-2 py-1 text-xs text-muted-foreground transition-opacity hover:text-foreground" data-code="${encodeURIComponent(code)}">Copy</button></div>`;
+      return `<div class="relative group"><pre><code${attrs}>${code}</code></pre><button class="copy-btn absolute top-2 right-2 opacity-0 group-hover:opacity-100 rounded-md bg-secondary px-2 py-1 text-xs text-muted-foreground transition-opacity hover:text-foreground border border-border" data-code="${encodeURIComponent(code)}">Copy</button></div>`;
     }
   );
 
@@ -59,7 +58,6 @@ export function DocContent({
         const code = decodeURIComponent(
           target.getAttribute("data-code") || ""
         );
-        // Strip HTML tags
         const text = code.replace(/<[^>]*>/g, "");
         navigator.clipboard.writeText(text);
         target.textContent = "Copied!";
@@ -74,28 +72,30 @@ export function DocContent({
   }, []);
 
   return (
-    <div>
+    <div className="max-w-3xl">
       <h1 className="mb-6 text-3xl font-bold text-foreground">{title}</h1>
 
       {/* Table of Contents */}
       {toc.length > 2 && (
-        <div className="mb-8 rounded-lg border border-border bg-card p-4">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            On this page
-          </p>
-          <nav className="flex flex-col gap-1">
-            {toc.map((item) => (
-              <a
-                key={item.id}
-                href={`#${item.id}`}
-                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                style={{ paddingLeft: `${(item.level - 1) * 12}px` }}
-              >
-                {item.text}
-              </a>
-            ))}
-          </nav>
-        </div>
+        <Card className="mb-8 rounded-xl border-border">
+          <CardContent className="p-4">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              On this page
+            </p>
+            <nav className="flex flex-col gap-1">
+              {toc.map((item) => (
+                <a
+                  key={item.id}
+                  href={`#${item.id}`}
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                  style={{ paddingLeft: `${(item.level - 1) * 12}px` }}
+                >
+                  {item.text}
+                </a>
+              ))}
+            </nav>
+          </CardContent>
+        </Card>
       )}
 
       {/* Content */}

@@ -1,5 +1,6 @@
 import { getDb } from "@/lib/db";
 import { AppWindow, FileText, Inbox, Users } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default async function AdminDashboard() {
   const sql = getDb();
@@ -19,30 +20,26 @@ export default async function AdminDashboard() {
       label: "Applications",
       value: apps[0].count,
       icon: AppWindow,
-      color: "text-[var(--neon-cyan)]",
-      bg: "bg-[var(--neon-cyan)]/10",
+      accent: "primary" as const,
     },
     {
       label: "Documentation Pages",
       value: docs[0].count,
       icon: FileText,
-      color: "text-[var(--neon-purple)]",
-      bg: "bg-[var(--neon-purple)]/10",
+      accent: "accent" as const,
     },
     {
       label: "Messages",
       value: messages[0].count,
       icon: Inbox,
-      color: "text-[var(--neon-cyan)]",
-      bg: "bg-[var(--neon-cyan)]/10",
+      accent: "primary" as const,
       sub: `${unreadMessages[0].count} unread`,
     },
     {
       label: "Users",
       value: users[0].count,
       icon: Users,
-      color: "text-[var(--neon-purple)]",
-      bg: "bg-[var(--neon-purple)]/10",
+      accent: "accent" as const,
     },
   ];
 
@@ -57,58 +54,64 @@ export default async function AdminDashboard() {
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded-xl border border-border bg-card p-6"
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
-              <div
-                className={`flex h-10 w-10 items-center justify-center rounded-lg ${stat.bg}`}
-              >
-                <stat.icon size={20} className={stat.color} />
+          <Card key={stat.label} className="rounded-2xl border-border">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">{stat.label}</p>
+                <div
+                  className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+                    stat.accent === "primary" ? "bg-primary/10" : "bg-accent/10"
+                  }`}
+                >
+                  <stat.icon
+                    size={20}
+                    className={stat.accent === "primary" ? "text-primary" : "text-accent"}
+                  />
+                </div>
               </div>
-            </div>
-            <p className="mt-3 text-3xl font-bold text-foreground">
-              {stat.value}
-            </p>
-            {stat.sub && (
-              <p className="mt-1 text-xs text-muted-foreground">{stat.sub}</p>
-            )}
-          </div>
+              <p className="mt-3 text-3xl font-bold text-foreground">
+                {stat.value}
+              </p>
+              {stat.sub && (
+                <p className="mt-1 text-xs text-muted-foreground">{stat.sub}</p>
+              )}
+            </CardContent>
+          </Card>
         ))}
       </div>
 
-      <div className="mt-8 rounded-xl border border-border bg-card p-6">
-        <h2 className="mb-4 text-lg font-semibold text-foreground">
-          Quick Actions
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <a
-            href="/admin/applications"
-            className="rounded-lg border border-border p-4 text-center transition-colors hover:border-[var(--neon-cyan)]/30 hover:bg-secondary"
-          >
-            <AppWindow size={24} className="mx-auto mb-2 text-[var(--neon-cyan)]" />
-            <p className="text-sm font-medium text-foreground">
-              Manage Applications
-            </p>
-          </a>
-          <a
-            href="/admin/inbox"
-            className="rounded-lg border border-border p-4 text-center transition-colors hover:border-[var(--neon-purple)]/30 hover:bg-secondary"
-          >
-            <Inbox size={24} className="mx-auto mb-2 text-[var(--neon-purple)]" />
-            <p className="text-sm font-medium text-foreground">View Inbox</p>
-          </a>
-          <a
-            href="/admin/users"
-            className="rounded-lg border border-border p-4 text-center transition-colors hover:border-[var(--neon-cyan)]/30 hover:bg-secondary"
-          >
-            <Users size={24} className="mx-auto mb-2 text-[var(--neon-cyan)]" />
-            <p className="text-sm font-medium text-foreground">Manage Users</p>
-          </a>
-        </div>
-      </div>
+      <Card className="mt-8 rounded-2xl border-border">
+        <CardContent className="p-6">
+          <h2 className="mb-4 text-lg font-semibold text-foreground">
+            Quick Actions
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <a
+              href="/admin/applications"
+              className="rounded-xl border border-border p-4 text-center transition-all duration-200 hover:border-primary/30 hover:bg-primary/5 hover:scale-[1.02]"
+            >
+              <AppWindow size={24} className="mx-auto mb-2 text-primary" />
+              <p className="text-sm font-medium text-foreground">
+                Manage Applications
+              </p>
+            </a>
+            <a
+              href="/admin/inbox"
+              className="rounded-xl border border-border p-4 text-center transition-all duration-200 hover:border-accent/30 hover:bg-accent/5 hover:scale-[1.02]"
+            >
+              <Inbox size={24} className="mx-auto mb-2 text-accent" />
+              <p className="text-sm font-medium text-foreground">View Inbox</p>
+            </a>
+            <a
+              href="/admin/users"
+              className="rounded-xl border border-border p-4 text-center transition-all duration-200 hover:border-primary/30 hover:bg-primary/5 hover:scale-[1.02]"
+            >
+              <Users size={24} className="mx-auto mb-2 text-primary" />
+              <p className="text-sm font-medium text-foreground">Manage Users</p>
+            </a>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

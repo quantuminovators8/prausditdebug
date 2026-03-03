@@ -44,7 +44,7 @@ export default async function DocumentationPage() {
           </p>
           <Link
             href="/admin/applications"
-            className="mt-2 inline-flex items-center gap-1 text-sm text-[var(--neon-cyan)] hover:underline"
+            className="mt-2 inline-flex items-center gap-1 text-sm text-primary hover:underline"
           >
             Go to Applications
             <ArrowRight size={14} />
@@ -56,7 +56,7 @@ export default async function DocumentationPage() {
             <Link
               key={app.id}
               href={`/admin/applications/${app.id}`}
-              className="rounded-xl border border-border bg-card p-5 transition-colors hover:border-[var(--neon-cyan)]/30"
+              className="rounded-xl border border-border bg-card p-5 transition-all duration-200 hover:border-primary/30 hover:scale-[1.02]"
             >
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold text-foreground">{app.name}</h3>

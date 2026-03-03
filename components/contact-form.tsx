@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Send, CheckCircle2 } from "lucide-react";
 
@@ -51,98 +52,105 @@ export function ContactForm() {
 
   if (submitted) {
     return (
-      <div className="glass rounded-xl p-12 text-center neon-glow-cyan">
-        <CheckCircle2
-          size={48}
-          className="mx-auto mb-4 text-[var(--neon-cyan)]"
-        />
-        <h3 className="mb-2 text-xl font-semibold text-foreground">
-          Message Sent
-        </h3>
-        <p className="text-muted-foreground">
-          Thank you for reaching out. We will get back to you if needed.
-        </p>
-      </div>
+      <Card className="rounded-2xl border-border shadow-sm">
+        <CardContent className="p-12 text-center">
+          <CheckCircle2
+            size={48}
+            className="mx-auto mb-4 text-primary"
+          />
+          <h3 className="mb-2 text-xl font-semibold text-foreground">
+            Message Sent
+          </h3>
+          <p className="text-muted-foreground">
+            Thank you for reaching out. We will get back to you if needed.
+          </p>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="glass rounded-xl p-8">
-      <div className="flex flex-col gap-5">
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="name" className="text-foreground">
-            Name <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="name"
-            name="name"
-            required
-            placeholder="Your name"
-            defaultValue={isSignedIn ? user?.fullName || "" : ""}
-            className="bg-input border-border text-foreground placeholder:text-muted-foreground"
-          />
-        </div>
+    <Card className="rounded-2xl border-border shadow-sm">
+      <CardContent className="p-8">
+        <form onSubmit={handleSubmit}>
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="name" className="text-foreground">
+                Name <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="name"
+                name="name"
+                required
+                placeholder="Your name"
+                defaultValue={isSignedIn ? user?.fullName || "" : ""}
+                className="bg-input border-border"
+              />
+            </div>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="email" className="text-foreground">
-            Email <span className="text-xs text-muted-foreground">(optional)</span>
-          </Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="your@email.com"
-            defaultValue={
-              isSignedIn
-                ? user?.emailAddresses[0]?.emailAddress || ""
-                : ""
-            }
-            className="bg-input border-border text-foreground placeholder:text-muted-foreground"
-          />
-        </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="email" className="text-foreground">
+                Email{" "}
+                <span className="text-xs text-muted-foreground">(optional)</span>
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="your@email.com"
+                defaultValue={
+                  isSignedIn
+                    ? user?.emailAddresses[0]?.emailAddress || ""
+                    : ""
+                }
+                className="bg-input border-border"
+              />
+            </div>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="subject" className="text-foreground">
-            Subject <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="subject"
-            name="subject"
-            required
-            placeholder="What's this about?"
-            className="bg-input border-border text-foreground placeholder:text-muted-foreground"
-          />
-        </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="subject" className="text-foreground">
+                Subject <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="subject"
+                name="subject"
+                required
+                placeholder="What's this about?"
+                className="bg-input border-border"
+              />
+            </div>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="message" className="text-foreground">
-            Message <span className="text-destructive">*</span>
-          </Label>
-          <Textarea
-            id="message"
-            name="message"
-            required
-            rows={5}
-            placeholder="Tell us what you're thinking..."
-            className="bg-input border-border text-foreground placeholder:text-muted-foreground resize-none"
-          />
-        </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="message" className="text-foreground">
+                Message <span className="text-destructive">*</span>
+              </Label>
+              <Textarea
+                id="message"
+                name="message"
+                required
+                rows={5}
+                placeholder="Tell us what you're thinking..."
+                className="bg-input border-border resize-none"
+              />
+            </div>
 
-        <Button
-          type="submit"
-          disabled={loading}
-          className="bg-[var(--neon-cyan)] text-[var(--background)] hover:bg-[var(--neon-cyan)]/90 font-semibold"
-        >
-          {loading ? (
-            "Sending..."
-          ) : (
-            <>
-              <Send size={16} className="mr-2" />
-              Send Message
-            </>
-          )}
-        </Button>
-      </div>
-    </form>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
+            >
+              {loading ? (
+                "Sending..."
+              ) : (
+                <>
+                  <Send size={16} className="mr-2" />
+                  Send Message
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

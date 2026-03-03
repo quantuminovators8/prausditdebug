@@ -1,4 +1,5 @@
 import { Lock, Code2, Scale } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 const principles = [
   {
@@ -26,7 +27,7 @@ export function GovernanceSection() {
     <section className="py-24 px-6">
       <div className="mx-auto max-w-6xl">
         <div className="mb-16 text-center">
-          <p className="mb-3 text-sm font-medium uppercase tracking-widest text-[var(--neon-cyan)]">
+          <p className="mb-3 text-sm font-medium uppercase tracking-widest text-primary">
             Governance
           </p>
           <h2 className="mb-6 text-3xl font-bold text-foreground text-balance md:text-4xl">
@@ -36,20 +37,22 @@ export function GovernanceSection() {
 
         <div className="grid gap-6 md:grid-cols-3">
           {principles.map((p) => (
-            <div
+            <Card
               key={p.title}
-              className="glass rounded-xl p-8 text-center transition-all hover:neon-glow-cyan"
+              className="rounded-2xl border-border bg-card text-center transition-all duration-300 hover:shadow-md hover:scale-[1.02] dark:hover:shadow-[0_0_20px_rgba(0,245,255,0.06)]"
             >
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--neon-cyan)]/10">
-                <p.icon size={28} className="text-[var(--neon-cyan)]" />
-              </div>
-              <h3 className="mb-3 text-lg font-semibold text-foreground">
-                {p.title}
-              </h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {p.description}
-              </p>
-            </div>
+              <CardContent className="p-8">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                  <p.icon size={28} className="text-primary" />
+                </div>
+                <h3 className="mb-3 text-lg font-semibold text-card-foreground">
+                  {p.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  {p.description}
+                </p>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>

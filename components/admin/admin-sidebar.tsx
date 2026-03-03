@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
 import type { DbUser } from "@/lib/types";
 
 const navItems = [
@@ -37,20 +38,23 @@ export function AdminSidebar({ user }: { user: DbUser }) {
   };
 
   const sidebarContent = (
-    <div className="flex h-full flex-col bg-sidebar border-r border-sidebar-border">
+    <div className="flex h-full flex-col bg-card border-r border-border">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-sidebar-border px-5 py-4">
-        <Image
-          src="/images/logo.png"
-          alt="Prausdit Logo"
-          width={28}
-          height={28}
-          className="rounded-md"
-        />
-        <div>
-          <p className="text-sm font-semibold text-sidebar-foreground">Prausdit</p>
-          <p className="text-xs text-muted-foreground">Admin Panel</p>
-        </div>
+      <div className="flex items-center justify-between border-b border-border px-5 py-4">
+        <Link href="/admin" className="flex items-center gap-3">
+          <Image
+            src="/images/logo.png"
+            alt="Prausdit Logo"
+            width={28}
+            height={28}
+            className="rounded-md"
+          />
+          <div>
+            <p className="text-sm font-semibold text-foreground">Prausdit</p>
+            <p className="text-xs text-muted-foreground">Admin Panel</p>
+          </div>
+        </Link>
+        <ThemeToggle />
       </div>
 
       {/* Navigation */}
@@ -62,24 +66,27 @@ export function AdminSidebar({ user }: { user: DbUser }) {
               href={item.href}
               onClick={() => setMobileOpen(false)}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200",
                 isActive(item.href)
-                  ? "bg-sidebar-accent text-sidebar-primary font-medium"
-                  : "text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                  ? "bg-primary/10 text-primary font-medium"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
               )}
             >
               <item.icon size={18} />
               {item.label}
+              {isActive(item.href) && (
+                <div className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
+              )}
             </Link>
           ))}
         </div>
       </nav>
 
       {/* User section */}
-      <div className="flex items-center gap-3 border-t border-sidebar-border px-5 py-4">
+      <div className="flex items-center gap-3 border-t border-border px-5 py-4">
         <UserButton afterSignOutUrl="/" />
         <div className="flex-1 min-w-0">
-          <p className="truncate text-sm font-medium text-sidebar-foreground">
+          <p className="truncate text-sm font-medium text-foreground">
             {user.name}
           </p>
           <p className="truncate text-xs text-muted-foreground capitalize">
@@ -95,7 +102,7 @@ export function AdminSidebar({ user }: { user: DbUser }) {
       {/* Mobile toggle */}
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="fixed top-4 left-4 z-50 rounded-lg bg-sidebar p-2 text-foreground md:hidden"
+        className="fixed top-4 left-4 z-50 rounded-lg bg-card border border-border p-2 text-foreground shadow-sm md:hidden"
         aria-label="Toggle sidebar"
       >
         {mobileOpen ? <X size={20} /> : <Menu size={20} />}
@@ -104,7 +111,7 @@ export function AdminSidebar({ user }: { user: DbUser }) {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 md:hidden"
+          className="fixed inset-0 z-40 bg-foreground/20 backdrop-blur-sm md:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -112,7 +119,7 @@ export function AdminSidebar({ user }: { user: DbUser }) {
       {/* Mobile sidebar */}
       <aside
         className={cn(
-          "fixed top-0 left-0 z-40 h-full w-64 transform transition-transform md:hidden",
+          "fixed top-0 left-0 z-40 h-full w-64 transform transition-transform duration-300 md:hidden",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >

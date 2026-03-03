@@ -97,7 +97,7 @@ export default async function ApplicationPage({
                     <div className="flex items-center gap-3">
                       <BookOpen
                         size={20}
-                        className="shrink-0 text-[var(--neon-cyan)]"
+                        className="shrink-0 text-primary"
                       />
                       <span className="font-medium text-foreground">
                         {doc.title}
@@ -113,7 +113,7 @@ export default async function ApplicationPage({
         <div className="mt-12 flex items-center gap-4">
           <Button
             asChild
-            className="bg-[var(--neon-cyan)] text-[var(--background)] hover:bg-[var(--neon-cyan)]/90"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Link href={`/${applicationSlug}/docs`}>
               <BookOpen size={16} className="mr-2" />
