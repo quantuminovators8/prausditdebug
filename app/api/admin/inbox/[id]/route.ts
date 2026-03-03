@@ -11,15 +11,28 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await params;
-  const body = await req.json();
+  try {
+    const { id } = await params;
+    const numId = parseInt(id);
+    if (isNaN(numId)) {
+      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+    }
 
-  await prisma.contactSubmission.update({
-    where: { id: parseInt(id) },
-    data: { isRead: body.isRead },
-  });
+    const body = await req.json();
 
-  return NextResponse.json({ success: true });
+    await prisma.contactSubmission.update({
+      where: { id: numId },
+      data: { isRead: body.isRead },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Update inbox error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function DELETE(
@@ -31,11 +44,23 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await params;
+  try {
+    const { id } = await params;
+    const numId = parseInt(id);
+    if (isNaN(numId)) {
+      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+    }
 
-  await prisma.contactSubmission.delete({
-    where: { id: parseInt(id) },
-  });
+    await prisma.contactSubmission.delete({
+      where: { id: numId },
+    });
 
-  return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Delete inbox error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }

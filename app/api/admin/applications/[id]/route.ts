@@ -11,22 +11,34 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await params;
-  const body = await req.json();
+  try {
+    const { id } = await params;
+    const numId = parseInt(id);
+    if (isNaN(numId)) {
+      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+    }
 
-  const data: Record<string, unknown> = {};
-  if (body.name !== undefined) data.name = body.name;
-  if (body.slug !== undefined) data.slug = body.slug;
-  if (body.introduction !== undefined) data.introduction = body.introduction;
-  if (body.heroImage !== undefined) data.heroImage = body.heroImage;
-  if (body.status !== undefined) data.status = body.status;
+    const body = await req.json();
+    const data: Record<string, unknown> = {};
+    if (body.name !== undefined) data.name = body.name;
+    if (body.slug !== undefined) data.slug = body.slug;
+    if (body.introduction !== undefined) data.introduction = body.introduction;
+    if (body.heroImage !== undefined) data.heroImage = body.heroImage;
+    if (body.status !== undefined) data.status = body.status;
 
-  const application = await prisma.application.update({
-    where: { id: parseInt(id) },
-    data,
-  });
+    const application = await prisma.application.update({
+      where: { id: numId },
+      data,
+    });
 
-  return NextResponse.json({ application });
+    return NextResponse.json({ application });
+  } catch (error) {
+    console.error("Update application error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function DELETE(
@@ -38,11 +50,23 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await params;
+  try {
+    const { id } = await params;
+    const numId = parseInt(id);
+    if (isNaN(numId)) {
+      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+    }
 
-  await prisma.application.delete({
-    where: { id: parseInt(id) },
-  });
+    await prisma.application.delete({
+      where: { id: numId },
+    });
 
-  return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Delete application error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }

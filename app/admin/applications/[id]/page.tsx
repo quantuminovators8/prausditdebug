@@ -14,14 +14,16 @@ export default async function AppEditorPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const numId = parseInt(id);
+  if (isNaN(numId)) notFound();
 
   const app = await prisma.application.findUnique({
-    where: { id: parseInt(id) },
+    where: { id: numId },
   });
   if (!app) notFound();
 
   const docs = await prisma.documentation.findMany({
-    where: { applicationId: parseInt(id) },
+    where: { applicationId: numId },
     orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
   });
 
