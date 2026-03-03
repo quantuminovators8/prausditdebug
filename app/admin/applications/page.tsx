@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getDb } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 import { ApplicationsList } from "@/components/admin/applications-list";
 import type { Application } from "@/lib/types";
 
@@ -8,8 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default async function ApplicationsPage() {
-  const sql = getDb();
-  const applications = (await sql`SELECT * FROM applications ORDER BY created_at DESC`) as Application[];
+  const applications = await prisma.application.findMany({
+    orderBy: { createdAt: "desc" },
+  });
 
   return (
     <div className="p-6 md:p-8">
@@ -19,7 +20,7 @@ export default async function ApplicationsPage() {
           Manage platform applications.
         </p>
       </div>
-      <ApplicationsList applications={applications} />
+      <ApplicationsList applications={applications as Application[]} />
     </div>
   );
 }

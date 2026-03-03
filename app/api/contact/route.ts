@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { getDb } from "@/lib/db";
-import type { DbUser, ContactSubmission } from "@/lib/types";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
-    const sql = getDb();
     const { name, email, subject, message } = await req.json();
 
     if (!name || !subject || !message) {
@@ -24,35 +22,40 @@ export async function POST(req: NextRequest) {
     try {
       const { userId } = await auth();
       if (userId) {
-        const users = (await sql`SELECT role FROM users WHERE clerk_id = ${userId}`) as Pick<DbUser, "role">[];
-        if (users.length > 0) {
-          roleType = users[0].role === "developer" ? "developer" : "user";
+        const dbUser = await prisma.user.findUnique({
+          where: { clerkId: userId },
+          select: { role: true },
+        });
+        if (dbUser) {
+          roleType = dbUser.role === "developer" ? "developer" : "user";
         } else {
           roleType = "user";
         }
       }
     } catch {
-      // Not authenticated — anonymous
+      // Not authenticated -- anonymous
     }
 
     // Check duplicate submission
     const emailStr = email && email.trim() !== "" ? email.trim() : null;
 
     if (emailStr) {
-      const existing = (await sql`
-        SELECT id FROM contact_submissions WHERE email = ${emailStr}
-      `) as Pick<ContactSubmission, "id">[];
-      if (existing.length > 0) {
+      const existing = await prisma.contactSubmission.findFirst({
+        where: { email: emailStr },
+        select: { id: true },
+      });
+      if (existing) {
         return NextResponse.json(
           { error: "A submission from this email already exists." },
           { status: 409 }
         );
       }
     } else {
-      const existing = (await sql`
-        SELECT id FROM contact_submissions WHERE ip_address = ${ip} AND email IS NULL
-      `) as Pick<ContactSubmission, "id">[];
-      if (existing.length > 0) {
+      const existing = await prisma.contactSubmission.findFirst({
+        where: { ipAddress: ip, email: null },
+        select: { id: true },
+      });
+      if (existing) {
         return NextResponse.json(
           { error: "A submission from this IP already exists. Please provide an email for additional submissions." },
           { status: 409 }
@@ -60,10 +63,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    await sql`
-      INSERT INTO contact_submissions (name, email, subject, message, ip_address, role_type)
-      VALUES (${name}, ${emailStr}, ${subject}, ${message}, ${ip}, ${roleType})
-    `;
+    await prisma.contactSubmission.create({
+      data: {
+        name,
+        email: emailStr,
+        subject,
+        message,
+        ipAddress: ip,
+        roleType,
+      },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

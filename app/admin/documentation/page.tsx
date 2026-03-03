@@ -1,31 +1,21 @@
 import type { Metadata } from "next";
-import { getDb } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { FileText, ArrowRight } from "lucide-react";
-import type { Application } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Documentation",
 };
 
-interface DocCount {
-  application_id: number;
-  count: string;
-}
-
 export default async function DocumentationPage() {
-  const sql = getDb();
-  const apps = (await sql`SELECT * FROM applications ORDER BY name ASC`) as Application[];
-
-  const docCounts = (await sql`
-    SELECT application_id, COUNT(*) as count
-    FROM documentation
-    GROUP BY application_id
-  `) as DocCount[];
-
-  const countMap = new Map(
-    docCounts.map((d) => [d.application_id, parseInt(d.count)])
-  );
+  const apps = await prisma.application.findMany({
+    orderBy: { name: "asc" },
+    include: {
+      _count: {
+        select: { documentation: true },
+      },
+    },
+  });
 
   return (
     <div className="p-6 md:p-8">
@@ -69,8 +59,8 @@ export default async function DocumentationPage() {
                 /{app.slug}
               </p>
               <p className="mt-3 text-sm text-muted-foreground">
-                {countMap.get(app.id) || 0} documentation page
-                {(countMap.get(app.id) || 0) !== 1 ? "s" : ""}
+                {app._count.documentation} documentation page
+                {app._count.documentation !== 1 ? "s" : ""}
               </p>
             </Link>
           ))}
