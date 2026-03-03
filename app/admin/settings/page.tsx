@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
 import { getDb } from "@/lib/db";
+import type { DbUser } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 export default async function SettingsPage() {
   const { userId } = await auth();
   const sql = getDb();
-  const users = await sql`SELECT * FROM users WHERE clerk_id = ${userId}`;
+  const users = (await sql`SELECT * FROM users WHERE clerk_id = ${userId}`) as DbUser[];
   const user = users[0];
 
   return (

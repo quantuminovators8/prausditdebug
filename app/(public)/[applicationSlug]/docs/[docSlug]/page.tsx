@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getDb } from "@/lib/db";
 import { DocContent } from "@/components/docs/doc-content";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import type { Application, Documentation } from "@/lib/types";
 
 export async function generateMetadata({
   params,
@@ -13,10 +14,10 @@ export async function generateMetadata({
   const { applicationSlug, docSlug } = await params;
   const sql = getDb();
   const apps =
-    await sql`SELECT id, name FROM applications WHERE slug = ${applicationSlug} AND status = 'published'`;
+    (await sql`SELECT id, name FROM applications WHERE slug = ${applicationSlug} AND status = 'published'`) as Pick<Application, "id" | "name">[];
   if (apps.length === 0) return { title: "Not Found" };
   const docs =
-    await sql`SELECT title FROM documentation WHERE application_id = ${apps[0].id} AND slug = ${docSlug}`;
+    (await sql`SELECT title FROM documentation WHERE application_id = ${apps[0].id} AND slug = ${docSlug}`) as Pick<Documentation, "title">[];
   if (docs.length === 0) return { title: "Not Found" };
   return { title: `${docs[0].title} - ${apps[0].name}` };
 }
@@ -30,21 +31,21 @@ export default async function DocPage({
   const sql = getDb();
 
   const apps =
-    await sql`SELECT * FROM applications WHERE slug = ${applicationSlug} AND status = 'published'`;
+    (await sql`SELECT * FROM applications WHERE slug = ${applicationSlug} AND status = 'published'`) as Application[];
   if (apps.length === 0) notFound();
 
   const docs =
-    await sql`SELECT * FROM documentation WHERE application_id = ${apps[0].id} AND slug = ${docSlug}`;
+    (await sql`SELECT * FROM documentation WHERE application_id = ${apps[0].id} AND slug = ${docSlug}`) as Documentation[];
   if (docs.length === 0) notFound();
 
   const doc = docs[0];
 
   // Get all docs for prev/next navigation
-  const allDocs = await sql`
+  const allDocs = (await sql`
     SELECT id, title, slug, sort_order FROM documentation
     WHERE application_id = ${apps[0].id}
     ORDER BY sort_order ASC, created_at ASC
-  `;
+  `) as Pick<Documentation, "id" | "title" | "slug" | "sort_order">[];
 
   const currentIndex = allDocs.findIndex((d) => d.id === doc.id);
   const prevDoc = currentIndex > 0 ? allDocs[currentIndex - 1] : null;
@@ -52,11 +53,11 @@ export default async function DocPage({
     currentIndex < allDocs.length - 1 ? allDocs[currentIndex + 1] : null;
 
   // Get children for this doc
-  const children = await sql`
+  const children = (await sql`
     SELECT id, title, slug FROM documentation
     WHERE parent_id = ${doc.id}
     ORDER BY sort_order ASC
-  `;
+  `) as Pick<Documentation, "id" | "title" | "slug">[];
 
   return (
     <div className="max-w-3xl">

@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { getDb } from "@/lib/db";
+import type { DbUser, Documentation } from "@/lib/types";
 
 async function checkAdmin() {
   const { userId } = await auth();
   if (!userId) return false;
   const sql = getDb();
-  const users = await sql`SELECT role FROM users WHERE clerk_id = ${userId}`;
+  const users = (await sql`SELECT role FROM users WHERE clerk_id = ${userId}`) as Pick<DbUser, "role">[];
   return users.length > 0 && (users[0].role === "admin" || users[0].role === "developer");
 }
 
@@ -32,7 +33,7 @@ export async function PATCH(
     await sql`UPDATE documentation SET sort_order = ${body.sort_order} WHERE id = ${parseInt(id)}`;
   }
 
-  const updated = await sql`SELECT * FROM documentation WHERE id = ${parseInt(id)}`;
+  const updated = (await sql`SELECT * FROM documentation WHERE id = ${parseInt(id)}`) as Documentation[];
   return NextResponse.json({ doc: updated[0] });
 }
 

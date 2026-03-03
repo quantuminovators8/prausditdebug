@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getDb } from "@/lib/db";
 import { BookOpen } from "lucide-react";
+import type { Application, Documentation } from "@/lib/types";
 
 export async function generateMetadata({
   params,
@@ -12,7 +13,7 @@ export async function generateMetadata({
   const { applicationSlug } = await params;
   const sql = getDb();
   const apps =
-    await sql`SELECT name FROM applications WHERE slug = ${applicationSlug} AND status = 'published'`;
+    (await sql`SELECT name FROM applications WHERE slug = ${applicationSlug} AND status = 'published'`) as Pick<Application, "name">[];
   if (apps.length === 0) return { title: "Not Found" };
   return { title: `Documentation - ${apps[0].name}` };
 }
@@ -26,14 +27,14 @@ export default async function DocsIndexPage({
   const sql = getDb();
 
   const apps =
-    await sql`SELECT * FROM applications WHERE slug = ${applicationSlug} AND status = 'published'`;
+    (await sql`SELECT * FROM applications WHERE slug = ${applicationSlug} AND status = 'published'`) as Application[];
   if (apps.length === 0) notFound();
 
-  const docs = await sql`
+  const docs = (await sql`
     SELECT * FROM documentation
     WHERE application_id = ${apps[0].id} AND parent_id IS NULL
     ORDER BY sort_order ASC, created_at ASC
-  `;
+  `) as Documentation[];
 
   return (
     <div className="max-w-3xl">

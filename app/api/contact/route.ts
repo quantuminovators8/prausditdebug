@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { getDb } from "@/lib/db";
+import type { DbUser, ContactSubmission } from "@/lib/types";
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
     try {
       const { userId } = await auth();
       if (userId) {
-        const users = await sql`SELECT role FROM users WHERE clerk_id = ${userId}`;
+        const users = (await sql`SELECT role FROM users WHERE clerk_id = ${userId}`) as Pick<DbUser, "role">[];
         if (users.length > 0) {
           roleType = users[0].role === "developer" ? "developer" : "user";
         } else {
@@ -38,9 +39,9 @@ export async function POST(req: NextRequest) {
     const emailStr = email && email.trim() !== "" ? email.trim() : null;
 
     if (emailStr) {
-      const existing = await sql`
+      const existing = (await sql`
         SELECT id FROM contact_submissions WHERE email = ${emailStr}
-      `;
+      `) as Pick<ContactSubmission, "id">[];
       if (existing.length > 0) {
         return NextResponse.json(
           { error: "A submission from this email already exists." },
@@ -48,9 +49,9 @@ export async function POST(req: NextRequest) {
         );
       }
     } else {
-      const existing = await sql`
+      const existing = (await sql`
         SELECT id FROM contact_submissions WHERE ip_address = ${ip} AND email IS NULL
-      `;
+      `) as Pick<ContactSubmission, "id">[];
       if (existing.length > 0) {
         return NextResponse.json(
           { error: "A submission from this IP already exists. Please provide an email for additional submissions." },

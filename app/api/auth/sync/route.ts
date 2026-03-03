@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { getDb } from "@/lib/db";
+import type { DbUser } from "@/lib/types";
 
 export async function POST() {
   try {
@@ -19,18 +20,18 @@ export async function POST() {
       `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User";
     const email = user.emailAddresses[0]?.emailAddress || "";
 
-    const existing = await sql`SELECT * FROM users WHERE clerk_id = ${userId}`;
+    const existing = (await sql`SELECT * FROM users WHERE clerk_id = ${userId}`) as DbUser[];
 
     if (existing.length > 0) {
       await sql`UPDATE users SET name = ${name}, email = ${email} WHERE clerk_id = ${userId}`;
       return NextResponse.json({ user: existing[0], synced: true });
     }
 
-    const result = await sql`
+    const result = (await sql`
       INSERT INTO users (clerk_id, name, email, role)
       VALUES (${userId}, ${name}, ${email}, 'user')
       RETURNING *
-    `;
+    `) as DbUser[];
 
     return NextResponse.json({ user: result[0], synced: true });
   } catch (error) {
