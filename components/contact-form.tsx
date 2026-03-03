@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,8 +9,20 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Send, CheckCircle2 } from "lucide-react";
 
+const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+function useClerkUser() {
+  if (!clerkEnabled) {
+    return { user: null, isSignedIn: false };
+  }
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { useUser } = require("@clerk/nextjs");
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  return useUser();
+}
+
 export function ContactForm() {
-  const { user, isSignedIn } = useUser();
+  const { user, isSignedIn } = useClerkUser();
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 

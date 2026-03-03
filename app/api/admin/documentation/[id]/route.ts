@@ -11,20 +11,32 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await params;
-  const body = await req.json();
+  try {
+    const { id } = await params;
+    const numId = parseInt(id);
+    if (isNaN(numId)) {
+      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+    }
 
-  const data: Record<string, unknown> = {};
-  if (body.content !== undefined) data.content = body.content;
-  if (body.title !== undefined) data.title = body.title;
-  if (body.sortOrder !== undefined) data.sortOrder = body.sortOrder;
+    const body = await req.json();
+    const data: Record<string, unknown> = {};
+    if (body.content !== undefined) data.content = body.content;
+    if (body.title !== undefined) data.title = body.title;
+    if (body.sortOrder !== undefined) data.sortOrder = body.sortOrder;
 
-  const doc = await prisma.documentation.update({
-    where: { id: parseInt(id) },
-    data,
-  });
+    const doc = await prisma.documentation.update({
+      where: { id: numId },
+      data,
+    });
 
-  return NextResponse.json({ doc });
+    return NextResponse.json({ doc });
+  } catch (error) {
+    console.error("Update documentation error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function DELETE(
@@ -36,11 +48,23 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await params;
+  try {
+    const { id } = await params;
+    const numId = parseInt(id);
+    if (isNaN(numId)) {
+      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+    }
 
-  await prisma.documentation.delete({
-    where: { id: parseInt(id) },
-  });
+    await prisma.documentation.delete({
+      where: { id: numId },
+    });
 
-  return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Delete documentation error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }
