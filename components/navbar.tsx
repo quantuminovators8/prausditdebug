@@ -73,7 +73,6 @@ export function Navbar() {
             <ThemeToggle />
             {isLoaded && isSignedIn ? (
               <UserButton
-                signInFallbackRedirectUrl="/"
                 appearance={{
                   elements: {
                     avatarBox: "w-8 h-8",
