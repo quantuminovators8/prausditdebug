@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { DocsSidebar } from "@/components/docs/docs-sidebar";
 import type { Documentation, DocTreeNode } from "@/lib/types";
+
+export const runtime = "nodejs";
 
 function buildDocTree(docs: Documentation[]): DocTreeNode[] {
   const map = new Map<number, DocTreeNode>();
@@ -30,19 +32,27 @@ export default async function DocsLayout({
   children: React.ReactNode;
   params: Promise<{ applicationSlug: string }>;
 }) {
+  if (!isDatabaseConfigured) notFound();
+
   const { applicationSlug } = await params;
 
-  const app = await prisma.application.findUnique({
-    where: { slug: applicationSlug },
-  });
-  if (!app || app.status !== "published") notFound();
+  let app;
+  let docTree: DocTreeNode[] = [];
+  try {
+    app = await prisma.application.findUnique({
+      where: { slug: applicationSlug },
+    });
+    if (!app || app.status !== "published") notFound();
 
-  const docs = await prisma.documentation.findMany({
-    where: { applicationId: app.id },
-    orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
-  });
-
-  const docTree = buildDocTree(docs as Documentation[]);
+    const docs = await prisma.documentation.findMany({
+      where: { applicationId: app.id },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    });
+    docTree = buildDocTree(docs as Documentation[]);
+  } catch (error) {
+    console.error("Docs layout query error:", error);
+    notFound();
+  }
 
   return (
     <div className="flex min-h-screen pt-24">

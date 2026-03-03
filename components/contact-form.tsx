@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,18 +11,15 @@ import { Send, CheckCircle2 } from "lucide-react";
 
 const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
-function useClerkUser() {
-  if (!clerkEnabled) {
-    return { user: null, isSignedIn: false };
-  }
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { useUser } = require("@clerk/nextjs");
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  return useUser();
-}
+/**
+ * Lazily loaded component that uses Clerk hooks to pre-fill form fields.
+ * Only rendered when Clerk is configured.
+ */
+const ClerkContactPrefill = clerkEnabled
+  ? lazy(() => import("@/components/clerk-contact-prefill"))
+  : null;
 
 export function ContactForm() {
-  const { user, isSignedIn } = useClerkUser();
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -80,10 +77,33 @@ export function ContactForm() {
     );
   }
 
+  // If Clerk is enabled, render the prefill-aware form, otherwise render the plain form
+  if (ClerkContactPrefill) {
+    return (
+      <Suspense fallback={<ContactFormFields loading={loading} onSubmit={handleSubmit} />}>
+        <ClerkContactPrefill loading={loading} onSubmit={handleSubmit} />
+      </Suspense>
+    );
+  }
+
+  return <ContactFormFields loading={loading} onSubmit={handleSubmit} />;
+}
+
+export function ContactFormFields({
+  loading,
+  onSubmit,
+  defaultName,
+  defaultEmail,
+}: {
+  loading: boolean;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  defaultName?: string;
+  defaultEmail?: string;
+}) {
   return (
     <Card className="rounded-2xl border-border shadow-sm">
       <CardContent className="p-8">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={onSubmit}>
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
               <Label htmlFor="name" className="text-foreground">
@@ -94,7 +114,7 @@ export function ContactForm() {
                 name="name"
                 required
                 placeholder="Your name"
-                defaultValue={isSignedIn ? user?.fullName || "" : ""}
+                defaultValue={defaultName || ""}
                 className="bg-input border-border"
               />
             </div>
@@ -109,11 +129,7 @@ export function ContactForm() {
                 name="email"
                 type="email"
                 placeholder="your@email.com"
-                defaultValue={
-                  isSignedIn
-                    ? user?.emailAddresses[0]?.emailAddress || ""
-                    : ""
-                }
+                defaultValue={defaultEmail || ""}
                 className="bg-input border-border"
               />
             </div>

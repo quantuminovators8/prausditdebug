@@ -1,17 +1,35 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
-const isAuthRoute = createRouteMatcher([
-  "/login(.*)",
-  "/sign-up(.*)",
-  "/developer(.*)",
-]);
+const clerkKeysAvailable =
+  !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
+  !!process.env.CLERK_SECRET_KEY;
 
-export default clerkMiddleware(async (auth, req) => {
-  if (isAdminRoute(req)) {
-    await auth.protect();
+async function withClerkMiddleware(req: NextRequest) {
+  // Dynamically import Clerk middleware only when keys are present.
+  // This prevents build/runtime crashes when Clerk is not configured.
+  const { clerkMiddleware, createRouteMatcher } = await import(
+    "@clerk/nextjs/server"
+  );
+  const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
+
+  return clerkMiddleware(async (auth, request) => {
+    if (isAdminRoute(request)) {
+      await auth.protect();
+    }
+  })(req, {} as never);
+}
+
+export default async function middleware(req: NextRequest) {
+  if (clerkKeysAvailable) {
+    return withClerkMiddleware(req);
   }
-});
+  // Without Clerk, block admin routes and let everything else through.
+  if (req.nextUrl.pathname.startsWith("/admin")) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [

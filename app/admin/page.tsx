@@ -1,16 +1,34 @@
-import { prisma } from "@/lib/prisma";
-import { AppWindow, FileText, Inbox, Users } from "lucide-react";
+import { prisma, isDatabaseConfigured } from "@/lib/prisma";
+import { AppWindow, FileText, Inbox, Users, AlertTriangle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
+export const runtime = "nodejs";
+
 export default async function AdminDashboard() {
-  const [appCount, docCount, messageCount, userCount, unreadCount] =
-    await Promise.all([
-      prisma.application.count(),
-      prisma.documentation.count(),
-      prisma.contactSubmission.count(),
-      prisma.user.count(),
-      prisma.contactSubmission.count({ where: { isRead: false } }),
-    ]);
+  if (!isDatabaseConfigured) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <div className="rounded-xl border border-border bg-card p-8 text-center">
+          <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
+          <p className="text-muted-foreground">Database not configured.</p>
+        </div>
+      </div>
+    );
+  }
+
+  let appCount = 0, docCount = 0, messageCount = 0, userCount = 0, unreadCount = 0;
+  try {
+    [appCount, docCount, messageCount, userCount, unreadCount] =
+      await Promise.all([
+        prisma.application.count(),
+        prisma.documentation.count(),
+        prisma.contactSubmission.count(),
+        prisma.user.count(),
+        prisma.contactSubmission.count({ where: { isRead: false } }),
+      ]);
+  } catch (error) {
+    console.error("Admin dashboard query error:", error);
+  }
 
   const stats = [
     {

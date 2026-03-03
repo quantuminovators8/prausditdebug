@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { UserButton } from "@clerk/nextjs";
 import {
   LayoutDashboard,
   AppWindow,
@@ -18,6 +17,19 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import type { DbUser } from "@/lib/types";
+
+const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+function ClerkUserButtonSafe() {
+  if (!clerkEnabled) return null;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { UserButton } = require("@clerk/nextjs");
+    return <UserButton />;
+  } catch {
+    return null;
+  }
+}
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -84,7 +96,7 @@ export function AdminSidebar({ user }: { user: DbUser }) {
 
       {/* User section */}
       <div className="flex items-center gap-3 border-t border-border px-5 py-4">
-        <UserButton />
+        <ClerkUserButtonSafe />
         <div className="flex-1 min-w-0">
           <p className="truncate text-sm font-medium text-foreground">
             {user.name}

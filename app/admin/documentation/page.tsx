@@ -1,21 +1,39 @@
 import type { Metadata } from "next";
-import { prisma } from "@/lib/prisma";
+import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import Link from "next/link";
-import { FileText, ArrowRight } from "lucide-react";
+import { FileText, ArrowRight, AlertTriangle } from "lucide-react";
+
+export const runtime = "nodejs";
 
 export const metadata: Metadata = {
   title: "Documentation",
 };
 
 export default async function DocumentationPage() {
-  const apps = await prisma.application.findMany({
-    orderBy: { name: "asc" },
-    include: {
-      _count: {
-        select: { documentation: true },
+  if (!isDatabaseConfigured) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <div className="rounded-xl border border-border bg-card p-8 text-center">
+          <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
+          <p className="text-muted-foreground">Database not configured.</p>
+        </div>
+      </div>
+    );
+  }
+
+  let apps: Awaited<ReturnType<typeof prisma.application.findMany>> = [];
+  try {
+    apps = await prisma.application.findMany({
+      orderBy: { name: "asc" },
+      include: {
+        _count: {
+          select: { documentation: true },
+        },
       },
-    },
-  });
+    });
+  } catch (error) {
+    console.error("Documentation page query error:", error);
+  }
 
   return (
     <div className="p-6 md:p-8">

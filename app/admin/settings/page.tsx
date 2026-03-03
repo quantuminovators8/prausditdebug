@@ -1,17 +1,31 @@
 import type { Metadata } from "next";
-import { auth } from "@clerk/nextjs/server";
-import { prisma } from "@/lib/prisma";
+import { prisma, isDatabaseConfigured } from "@/lib/prisma";
+import { isClerkConfigured } from "@/lib/auth";
+import { AlertTriangle } from "lucide-react";
+
+export const runtime = "nodejs";
 
 export const metadata: Metadata = {
   title: "Settings",
 };
 
 export default async function SettingsPage() {
-  const { userId } = await auth();
+  let user: { name: string; email: string; role: string; clerkId: string } | null = null;
 
-  const user = userId
-    ? await prisma.user.findUnique({ where: { clerkId: userId } })
-    : null;
+  if (isClerkConfigured && isDatabaseConfigured) {
+    try {
+      const { auth } = await import("@clerk/nextjs/server");
+      const { userId } = await auth();
+      if (userId) {
+        const dbUser = await prisma.user.findUnique({ where: { clerkId: userId } });
+        if (dbUser) {
+          user = { name: dbUser.name, email: dbUser.email, role: dbUser.role, clerkId: dbUser.clerkId };
+        }
+      }
+    } catch (error) {
+      console.error("Settings page error:", error);
+    }
+  }
 
   return (
     <div className="p-6 md:p-8">

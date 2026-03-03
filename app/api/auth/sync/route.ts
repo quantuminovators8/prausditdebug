@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
-import { auth, currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
-import { resolveRole } from "@/lib/auth";
+import { resolveRole, isClerkConfigured } from "@/lib/auth";
+
+export const runtime = "nodejs";
 
 export async function POST() {
   try {
+    if (!isClerkConfigured) {
+      return NextResponse.json({ error: "Auth not configured" }, { status: 503 });
+    }
+    const { auth, currentUser } = await import("@clerk/nextjs/server");
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

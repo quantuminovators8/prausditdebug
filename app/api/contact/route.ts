@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
-import { prisma } from "@/lib/prisma";
+import { prisma, isDatabaseConfigured } from "@/lib/prisma";
+import { isClerkConfigured } from "@/lib/auth";
+
+export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
+    if (!isDatabaseConfigured) {
+      return NextResponse.json(
+        { error: "Database not configured." },
+        { status: 503 }
+      );
+    }
+
     const { name, email, subject, message } = await req.json();
 
     if (!name || !subject || !message) {
@@ -19,21 +28,24 @@ export async function POST(req: NextRequest) {
 
     // Determine role type
     let roleType = "anonymous";
-    try {
-      const { userId } = await auth();
-      if (userId) {
-        const dbUser = await prisma.user.findUnique({
-          where: { clerkId: userId },
-          select: { role: true },
-        });
-        if (dbUser) {
-          roleType = dbUser.role === "developer" ? "developer" : "user";
-        } else {
-          roleType = "user";
+    if (isClerkConfigured) {
+      try {
+        const { auth } = await import("@clerk/nextjs/server");
+        const { userId } = await auth();
+        if (userId) {
+          const dbUser = await prisma.user.findUnique({
+            where: { clerkId: userId },
+            select: { role: true },
+          });
+          if (dbUser) {
+            roleType = dbUser.role === "developer" ? "developer" : "user";
+          } else {
+            roleType = "user";
+          }
         }
+      } catch {
+        // Not authenticated -- anonymous
       }
-    } catch {
-      // Not authenticated -- anonymous
     }
 
     // Check duplicate submission
