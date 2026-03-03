@@ -1,0 +1,247 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: #0A0A0F;
+  --foreground: #E8E8ED;
+  --card: #111118;
+  --card-foreground: #E8E8ED;
+  --popover: #111118;
+  --popover-foreground: #E8E8ED;
+  --primary: #00F5FF;
+  --primary-foreground: #0A0A0F;
+  --secondary: #1A1A25;
+  --secondary-foreground: #E8E8ED;
+  --muted: #16161F;
+  --muted-foreground: #8888A0;
+  --accent: #8A2BE2;
+  --accent-foreground: #FFFFFF;
+  --destructive: #FF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #222233;
+  --input: #1A1A28;
+  --ring: #00F5FF;
+  --chart-1: #00F5FF;
+  --chart-2: #8A2BE2;
+  --chart-3: #00C4CC;
+  --chart-4: #6B21A8;
+  --chart-5: #22D3EE;
+  --radius: 0.75rem;
+  --sidebar: #0D0D14;
+  --sidebar-foreground: #E8E8ED;
+  --sidebar-primary: #00F5FF;
+  --sidebar-primary-foreground: #0A0A0F;
+  --sidebar-accent: #1A1A28;
+  --sidebar-accent-foreground: #E8E8ED;
+  --sidebar-border: #222233;
+  --sidebar-ring: #00F5FF;
+  --neon-cyan: #00F5FF;
+  --neon-purple: #8A2BE2;
+  --glass-bg: rgba(17, 17, 24, 0.6);
+  --glass-border: rgba(0, 245, 255, 0.1);
+}
+
+@theme inline {
+  --font-sans: 'Geist', 'Geist Fallback', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-neon-cyan: var(--neon-cyan);
+  --color-neon-purple: var(--neon-purple);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Glass morphism utility */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-strong {
+  background: rgba(17, 17, 24, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(0, 245, 255, 0.15);
+}
+
+/* Neon glow effects */
+.neon-glow-cyan {
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.15), 0 0 40px rgba(0, 245, 255, 0.05);
+}
+
+.neon-glow-purple {
+  box-shadow: 0 0 20px rgba(138, 43, 226, 0.15), 0 0 40px rgba(138, 43, 226, 0.05);
+}
+
+.neon-border-cyan {
+  border: 1px solid rgba(0, 245, 255, 0.2);
+}
+
+.neon-border-purple {
+  border: 1px solid rgba(138, 43, 226, 0.2);
+}
+
+/* Text glow */
+.text-glow-cyan {
+  text-shadow: 0 0 20px rgba(0, 245, 255, 0.4);
+}
+
+.text-glow-purple {
+  text-shadow: 0 0 20px rgba(138, 43, 226, 0.4);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Rich text content styles */
+.prose-docs h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: var(--foreground);
+}
+.prose-docs h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+  color: var(--foreground);
+}
+.prose-docs h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--foreground);
+}
+.prose-docs p {
+  margin-bottom: 1rem;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+}
+.prose-docs ul,
+.prose-docs ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+.prose-docs li {
+  margin-bottom: 0.25rem;
+  color: var(--muted-foreground);
+}
+.prose-docs pre {
+  background: var(--secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+}
+.prose-docs code {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+.prose-docs blockquote {
+  border-left: 3px solid var(--primary);
+  padding-left: 1rem;
+  margin-bottom: 1rem;
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+.prose-docs table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+.prose-docs th,
+.prose-docs td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+.prose-docs th {
+  background: var(--secondary);
+  font-weight: 600;
+}
+.prose-docs img {
+  max-width: 100%;
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+}
+.prose-docs a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* TipTap editor */
+.tiptap-editor .ProseMirror {
+  min-height: 300px;
+  padding: 1rem;
+  outline: none;
+}
+.tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--muted-foreground);
+  pointer-events: none;
+  height: 0;
+}

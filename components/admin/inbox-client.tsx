@@ -1,0 +1,285 @@
+"use client";
+
+import { useState } from "react";
+import { formatDistanceToNow } from "date-fns";
+import {
+  Search,
+  Mail,
+  MailOpen,
+  Trash2,
+  ArrowLeft,
+  Circle,
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import type { ContactSubmission } from "@/lib/types";
+
+type FilterType = "all" | "read" | "unread";
+
+export function InboxClient({
+  submissions: initial,
+}: {
+  submissions: ContactSubmission[];
+}) {
+  const [submissions, setSubmissions] = useState(initial);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<FilterType>("all");
+
+  const selected = submissions.find((s) => s.id === selectedId);
+
+  function filterSubmissions(role: string) {
+    let filtered = submissions.filter((s) => s.role_type === role);
+    if (search) {
+      const q = search.toLowerCase();
+      filtered = filtered.filter(
+        (s) =>
+          s.name.toLowerCase().includes(q) ||
+          s.subject.toLowerCase().includes(q) ||
+          (s.email && s.email.toLowerCase().includes(q))
+      );
+    }
+    if (filter === "read") filtered = filtered.filter((s) => s.is_read);
+    if (filter === "unread") filtered = filtered.filter((s) => !s.is_read);
+    return filtered;
+  }
+
+  async function markAsRead(id: number) {
+    try {
+      await fetch(`/api/admin/inbox/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_read: true }),
+      });
+      setSubmissions((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, is_read: true } : s))
+      );
+    } catch {
+      toast.error("Failed to mark as read");
+    }
+  }
+
+  async function deleteSubmission(id: number) {
+    try {
+      await fetch(`/api/admin/inbox/${id}`, { method: "DELETE" });
+      setSubmissions((prev) => prev.filter((s) => s.id !== id));
+      setSelectedId(null);
+      toast.success("Message deleted");
+    } catch {
+      toast.error("Failed to delete");
+    }
+  }
+
+  function openMessage(s: ContactSubmission) {
+    setSelectedId(s.id);
+    if (!s.is_read) markAsRead(s.id);
+  }
+
+  function MessageList({ role }: { role: string }) {
+    const items = filterSubmissions(role);
+    if (items.length === 0) {
+      return (
+        <div className="py-12 text-center text-muted-foreground">
+          No messages found.
+        </div>
+      );
+    }
+    return (
+      <div className="flex flex-col divide-y divide-border">
+        {items.map((s) => (
+          <button
+            key={s.id}
+            onClick={() => openMessage(s)}
+            className={cn(
+              "flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-secondary",
+              selectedId === s.id && "bg-secondary",
+              !s.is_read && "bg-[var(--neon-cyan)]/[0.02]"
+            )}
+          >
+            <div className="mt-1 shrink-0">
+              {s.is_read ? (
+                <MailOpen size={16} className="text-muted-foreground" />
+              ) : (
+                <Circle
+                  size={8}
+                  className="mt-1 fill-[var(--neon-cyan)] text-[var(--neon-cyan)]"
+                />
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-2">
+                <p
+                  className={cn(
+                    "truncate text-sm",
+                    !s.is_read
+                      ? "font-semibold text-foreground"
+                      : "text-foreground"
+                  )}
+                >
+                  {s.name}
+                </p>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(s.created_at), {
+                    addSuffix: true,
+                  })}
+                </span>
+              </div>
+              <p className="truncate text-sm text-muted-foreground">
+                {s.subject}
+              </p>
+              {s.email && (
+                <p className="truncate text-xs text-muted-foreground/60">
+                  {s.email}
+                </p>
+              )}
+            </div>
+          </button>
+        ))}
+      </div>
+    );
+  }
+
+  // Message detail view
+  if (selected) {
+    return (
+      <div className="rounded-xl border border-border bg-card">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSelectedId(null)}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft size={16} className="mr-2" />
+            Back
+          </Button>
+          <div className="flex items-center gap-2">
+            {!selected.is_read && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => markAsRead(selected.id)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Mail size={16} className="mr-1" />
+                Mark Read
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => deleteSubmission(selected.id)}
+              className="text-destructive hover:text-destructive"
+            >
+              <Trash2 size={16} className="mr-1" />
+              Delete
+            </Button>
+          </div>
+        </div>
+        <div className="p-6">
+          <h2 className="mb-4 text-xl font-semibold text-foreground">
+            {selected.subject}
+          </h2>
+          <div className="mb-6 flex flex-wrap gap-4 text-sm text-muted-foreground">
+            <div>
+              <span className="font-medium text-foreground">From:</span>{" "}
+              {selected.name}
+            </div>
+            {selected.email && (
+              <div>
+                <span className="font-medium text-foreground">Email:</span>{" "}
+                {selected.email}
+              </div>
+            )}
+            <div>
+              <span className="font-medium text-foreground">Type:</span>{" "}
+              <span className="capitalize">{selected.role_type}</span>
+            </div>
+            <div>
+              <span className="font-medium text-foreground">Date:</span>{" "}
+              {new Date(selected.created_at).toLocaleString()}
+            </div>
+          </div>
+          <div className="whitespace-pre-wrap rounded-lg border border-border bg-secondary p-4 text-sm leading-relaxed text-foreground">
+            {selected.message}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border border-border bg-card">
+      {/* Search & Filter bar */}
+      <div className="flex flex-col gap-3 border-b border-border p-4 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search
+            size={16}
+            className="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
+          />
+          <Input
+            placeholder="Search messages..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="bg-input pl-9 border-border text-foreground placeholder:text-muted-foreground"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          {(["all", "unread", "read"] as FilterType[]).map((f) => (
+            <Button
+              key={f}
+              size="sm"
+              variant={filter === f ? "default" : "outline"}
+              onClick={() => setFilter(f)}
+              className={
+                filter === f
+                  ? "bg-[var(--neon-cyan)] text-[var(--background)] hover:bg-[var(--neon-cyan)]/90"
+                  : "border-border text-muted-foreground hover:text-foreground"
+              }
+            >
+              <span className="capitalize">{f}</span>
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <Tabs defaultValue="developer">
+        <div className="border-b border-border px-4">
+          <TabsList className="h-auto bg-transparent p-0">
+            <TabsTrigger
+              value="developer"
+              className="rounded-none border-b-2 border-transparent px-4 py-3 text-sm data-[state=active]:border-[var(--neon-cyan)] data-[state=active]:text-[var(--neon-cyan)] data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Developer
+            </TabsTrigger>
+            <TabsTrigger
+              value="user"
+              className="rounded-none border-b-2 border-transparent px-4 py-3 text-sm data-[state=active]:border-[var(--neon-purple)] data-[state=active]:text-[var(--neon-purple)] data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              User
+            </TabsTrigger>
+            <TabsTrigger
+              value="anonymous"
+              className="rounded-none border-b-2 border-transparent px-4 py-3 text-sm data-[state=active]:border-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Anonymous
+            </TabsTrigger>
+          </TabsList>
+        </div>
+        <TabsContent value="developer" className="mt-0">
+          <MessageList role="developer" />
+        </TabsContent>
+        <TabsContent value="user" className="mt-0">
+          <MessageList role="user" />
+        </TabsContent>
+        <TabsContent value="anonymous" className="mt-0">
+          <MessageList role="anonymous" />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
