@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { isClerkConfigured } from "@/lib/auth";
 
 export const runtime = "nodejs";
@@ -11,6 +11,9 @@ export async function PATCH(
   try {
     if (!isClerkConfigured) {
       return NextResponse.json({ error: "Auth not configured" }, { status: 503 });
+    }
+    if (!isDatabaseConfigured) {
+      return NextResponse.json({ error: "Database not configured" }, { status: 503 });
     }
     const { auth } = await import("@clerk/nextjs/server");
     const { userId } = await auth();
