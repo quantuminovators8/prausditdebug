@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { getDb } from "@/lib/db";
+import { resolveRole } from "@/lib/auth";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { AccessDenied } from "@/components/admin/access-denied";
 import type { DbUser } from "@/lib/types";
 
 export default async function AdminLayout({
@@ -17,7 +19,6 @@ export default async function AdminLayout({
   // Sync user to DB if not exists
   let users = (await sql`SELECT * FROM users WHERE clerk_id = ${userId}`) as DbUser[];
   if (users.length === 0) {
-    // Auto-create user from Clerk
     const { currentUser } = await import("@clerk/nextjs/server");
     const clerkUser = await currentUser();
     if (!clerkUser) redirect("/login");
@@ -26,19 +27,30 @@ export default async function AdminLayout({
       `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim() ||
       "User";
     const email = clerkUser.emailAddresses[0]?.emailAddress || "";
+    const role = resolveRole(email);
 
     users = (await sql`
       INSERT INTO users (clerk_id, name, email, role)
-      VALUES (${userId}, ${name}, ${email}, 'user')
+      VALUES (${userId}, ${name}, ${email}, ${role})
       ON CONFLICT (clerk_id) DO UPDATE SET name = ${name}, email = ${email}
       RETURNING *
     `) as DbUser[];
+  } else {
+    // Check if existing user should be promoted based on SUPER_ADMIN_EMAIL
+    const email = users[0].email;
+    const expectedRole = resolveRole(email);
+    if (expectedRole === "admin" && users[0].role !== "admin") {
+      users = (await sql`
+        UPDATE users SET role = ${expectedRole} WHERE clerk_id = ${userId}
+        RETURNING *
+      `) as DbUser[];
+    }
   }
 
   const dbUser = users[0];
 
   if (dbUser.role !== "admin" && dbUser.role !== "developer") {
-    redirect("/");
+    return <AccessDenied />;
   }
 
   return (
