@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
 import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ClerkProviderWrapper } from "@/components/clerk-provider-wrapper";
 import "./globals.css";
 
 const _inter = Inter({ subsets: ["latin"] });
@@ -43,37 +43,15 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-const clerkPubKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
-function ClerkWrapper({ children }: { children: React.ReactNode }) {
-  if (!clerkPubKey) {
-    return <>{children}</>;
-  }
-
-  return (
-    <ClerkProvider
-      publishableKey={clerkPubKey}
-      signInFallbackRedirectUrl="/"
-      appearance={{
-        variables: {
-          colorPrimary: "#0891B2",
-        },
-      }}
-    >
-      {children}
-    </ClerkProvider>
-  );
-}
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <ClerkWrapper>
-      <html lang="en" suppressHydrationWarning>
-        <body className="font-sans antialiased">
+    <html lang="en" suppressHydrationWarning>
+      <body className="font-sans antialiased">
+        <ClerkProviderWrapper>
           <ThemeProvider
             attribute="class"
             defaultTheme="light"
@@ -89,9 +67,9 @@ export default function RootLayout({
               }}
             />
           </ThemeProvider>
-          <Analytics />
-        </body>
-      </html>
-    </ClerkWrapper>
+        </ClerkProviderWrapper>
+        <Analytics />
+      </body>
+    </html>
   );
 }
