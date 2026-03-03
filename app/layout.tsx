@@ -43,35 +43,19 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-const clerkPubKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
-function ClerkWrapper({ children }: { children: React.ReactNode }) {
-  if (!clerkPubKey) {
-    return <>{children}</>;
-  }
-
-  return (
-    <ClerkProvider
-      publishableKey={clerkPubKey}
-      signInFallbackRedirectUrl="/"
-      appearance={{
-        variables: {
-          colorPrimary: "#0891B2",
-        },
-      }}
-    >
-      {children}
-    </ClerkProvider>
-  );
-}
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <ClerkWrapper>
+    <ClerkProvider
+      appearance={{
+        variables: {
+          colorPrimary: "#0891B2",
+        },
+      }}
+    >
       <html lang="en" suppressHydrationWarning>
         <body className="font-sans antialiased">
           <ThemeProvider
@@ -92,6 +76,6 @@ export default function RootLayout({
           <Analytics />
         </body>
       </html>
-    </ClerkWrapper>
+    </ClerkProvider>
   );
 }
