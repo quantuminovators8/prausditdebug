@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
-import { getDb } from "@/lib/db";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma";
 import { resolveRole } from "@/lib/auth";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AccessDenied } from "@/components/admin/access-denied";
@@ -14,12 +14,12 @@ export default async function AdminLayout({
   const { userId } = await auth();
   if (!userId) redirect("/login");
 
-  const sql = getDb();
-
   // Sync user to DB if not exists
-  let users = (await sql`SELECT * FROM users WHERE clerk_id = ${userId}`) as DbUser[];
-  if (users.length === 0) {
-    const { currentUser } = await import("@clerk/nextjs/server");
+  let dbUser = await prisma.user.findUnique({
+    where: { clerkId: userId },
+  });
+
+  if (!dbUser) {
     const clerkUser = await currentUser();
     if (!clerkUser) redirect("/login");
 
@@ -29,25 +29,21 @@ export default async function AdminLayout({
     const email = clerkUser.emailAddresses[0]?.emailAddress || "";
     const role = resolveRole(email);
 
-    users = (await sql`
-      INSERT INTO users (clerk_id, name, email, role)
-      VALUES (${userId}, ${name}, ${email}, ${role})
-      ON CONFLICT (clerk_id) DO UPDATE SET name = ${name}, email = ${email}
-      RETURNING *
-    `) as DbUser[];
+    dbUser = await prisma.user.upsert({
+      where: { clerkId: userId },
+      create: { clerkId: userId, name, email, role },
+      update: { name, email },
+    });
   } else {
     // Check if existing user should be promoted based on SUPER_ADMIN_EMAIL
-    const email = users[0].email;
-    const expectedRole = resolveRole(email);
-    if (expectedRole === "admin" && users[0].role !== "admin") {
-      users = (await sql`
-        UPDATE users SET role = ${expectedRole} WHERE clerk_id = ${userId}
-        RETURNING *
-      `) as DbUser[];
+    const expectedRole = resolveRole(dbUser.email);
+    if (expectedRole === "admin" && dbUser.role !== "admin") {
+      dbUser = await prisma.user.update({
+        where: { clerkId: userId },
+        data: { role: expectedRole },
+      });
     }
   }
-
-  const dbUser = users[0];
 
   if (dbUser.role !== "admin" && dbUser.role !== "developer") {
     return <AccessDenied />;
@@ -55,7 +51,7 @@ export default async function AdminLayout({
 
   return (
     <div className="flex h-screen bg-background">
-      <AdminSidebar user={dbUser} />
+      <AdminSidebar user={dbUser as DbUser} />
       <main className="flex-1 overflow-auto">{children}</main>
     </div>
   );

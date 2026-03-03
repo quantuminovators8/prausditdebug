@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { getDb } from "@/lib/db";
-import type { DbUser } from "@/lib/types";
+import { prisma } from "@/lib/prisma";
 
 export async function PATCH(
   req: NextRequest,
@@ -12,9 +11,11 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const sql = getDb();
-  const admins = (await sql`SELECT role FROM users WHERE clerk_id = ${userId}`) as Pick<DbUser, "role">[];
-  if (admins.length === 0 || admins[0].role !== "admin") {
+  const adminUser = await prisma.user.findUnique({
+    where: { clerkId: userId },
+    select: { role: true },
+  });
+  if (!adminUser || adminUser.role !== "admin") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -25,6 +26,10 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid role" }, { status: 400 });
   }
 
-  await sql`UPDATE users SET role = ${role} WHERE id = ${parseInt(id)}`;
+  await prisma.user.update({
+    where: { id: parseInt(id) },
+    data: { role },
+  });
+
   return NextResponse.json({ success: true });
 }

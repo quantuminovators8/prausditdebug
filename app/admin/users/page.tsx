@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getDb } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 import { UsersClient } from "@/components/admin/users-client";
 import type { DbUser } from "@/lib/types";
 
@@ -8,8 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default async function UsersPage() {
-  const sql = getDb();
-  const users = (await sql`SELECT * FROM users ORDER BY created_at DESC`) as DbUser[];
+  const users = await prisma.user.findMany({
+    orderBy: { createdAt: "desc" },
+  });
 
   return (
     <div className="p-6 md:p-8">
@@ -17,7 +18,7 @@ export default async function UsersPage() {
         <h1 className="text-2xl font-bold text-foreground">Users</h1>
         <p className="mt-1 text-muted-foreground">Manage platform users and roles.</p>
       </div>
-      <UsersClient users={users} />
+      <UsersClient users={users as DbUser[]} />
     </div>
   );
 }

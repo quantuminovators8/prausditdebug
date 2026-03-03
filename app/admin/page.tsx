@@ -1,47 +1,40 @@
-import { getDb } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 import { AppWindow, FileText, Inbox, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
-interface CountRow {
-  count: string;
-}
-
 export default async function AdminDashboard() {
-  const sql = getDb();
-
-  const [apps, docs, messages, users] = (await Promise.all([
-    sql`SELECT COUNT(*) as count FROM applications`,
-    sql`SELECT COUNT(*) as count FROM documentation`,
-    sql`SELECT COUNT(*) as count FROM contact_submissions`,
-    sql`SELECT COUNT(*) as count FROM users`,
-  ])) as [CountRow[], CountRow[], CountRow[], CountRow[]];
-
-  const unreadMessages =
-    (await sql`SELECT COUNT(*) as count FROM contact_submissions WHERE is_read = false`) as CountRow[];
+  const [appCount, docCount, messageCount, userCount, unreadCount] =
+    await Promise.all([
+      prisma.application.count(),
+      prisma.documentation.count(),
+      prisma.contactSubmission.count(),
+      prisma.user.count(),
+      prisma.contactSubmission.count({ where: { isRead: false } }),
+    ]);
 
   const stats = [
     {
       label: "Applications",
-      value: apps[0].count,
+      value: appCount,
       icon: AppWindow,
       accent: "primary" as const,
     },
     {
       label: "Documentation Pages",
-      value: docs[0].count,
+      value: docCount,
       icon: FileText,
       accent: "accent" as const,
     },
     {
       label: "Messages",
-      value: messages[0].count,
+      value: messageCount,
       icon: Inbox,
       accent: "primary" as const,
-      sub: `${unreadMessages[0].count} unread`,
+      sub: `${unreadCount} unread`,
     },
     {
       label: "Users",
-      value: users[0].count,
+      value: userCount,
       icon: Users,
       accent: "accent" as const,
     },

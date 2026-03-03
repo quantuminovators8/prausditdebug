@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getDb } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 import { InboxClient } from "@/components/admin/inbox-client";
 import type { ContactSubmission } from "@/lib/types";
 
@@ -8,10 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default async function InboxPage() {
-  const sql = getDb();
-  const submissions = (await sql`
-    SELECT * FROM contact_submissions ORDER BY created_at DESC
-  `) as ContactSubmission[];
+  const submissions = await prisma.contactSubmission.findMany({
+    orderBy: { createdAt: "desc" },
+  });
 
   return (
     <div className="p-6 md:p-8">
@@ -21,7 +20,7 @@ export default async function InboxPage() {
           Manage contact submissions.
         </p>
       </div>
-      <InboxClient submissions={submissions} />
+      <InboxClient submissions={submissions as ContactSubmission[]} />
     </div>
   );
 }

@@ -1,9 +1,8 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getDb } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 import { BookOpen } from "lucide-react";
-import type { Application, Documentation } from "@/lib/types";
 
 export async function generateMetadata({
   params,
@@ -11,11 +10,12 @@ export async function generateMetadata({
   params: Promise<{ applicationSlug: string }>;
 }): Promise<Metadata> {
   const { applicationSlug } = await params;
-  const sql = getDb();
-  const apps =
-    (await sql`SELECT name FROM applications WHERE slug = ${applicationSlug} AND status = 'published'`) as Pick<Application, "name">[];
-  if (apps.length === 0) return { title: "Not Found" };
-  return { title: `Documentation - ${apps[0].name}` };
+  const app = await prisma.application.findUnique({
+    where: { slug: applicationSlug },
+    select: { name: true, status: true },
+  });
+  if (!app || app.status !== "published") return { title: "Not Found" };
+  return { title: `Documentation - ${app.name}` };
 }
 
 export default async function DocsIndexPage({
@@ -24,25 +24,24 @@ export default async function DocsIndexPage({
   params: Promise<{ applicationSlug: string }>;
 }) {
   const { applicationSlug } = await params;
-  const sql = getDb();
 
-  const apps =
-    (await sql`SELECT * FROM applications WHERE slug = ${applicationSlug} AND status = 'published'`) as Application[];
-  if (apps.length === 0) notFound();
+  const app = await prisma.application.findUnique({
+    where: { slug: applicationSlug },
+  });
+  if (!app || app.status !== "published") notFound();
 
-  const docs = (await sql`
-    SELECT * FROM documentation
-    WHERE application_id = ${apps[0].id} AND parent_id IS NULL
-    ORDER BY sort_order ASC, created_at ASC
-  `) as Documentation[];
+  const docs = await prisma.documentation.findMany({
+    where: { applicationId: app.id, parentId: null },
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+  });
 
   return (
     <div className="max-w-3xl">
       <h1 className="mb-2 text-3xl font-bold text-foreground">
-        {apps[0].name} Documentation
+        {app.name} Documentation
       </h1>
       <p className="mb-8 text-lg text-muted-foreground">
-        Browse the documentation to learn about {apps[0].name}.
+        Browse the documentation to learn about {app.name}.
       </p>
 
       {docs.length === 0 ? (
@@ -58,23 +57,22 @@ export default async function DocsIndexPage({
       ) : (
         <div className="flex flex-col gap-3">
           {docs.map((doc) => (
-              <Link
-                key={doc.id}
-                href={`/${applicationSlug}/docs/${doc.slug}`}
-                className="glass rounded-xl p-5 transition-all hover:neon-glow-cyan"
-              >
-                <div className="flex items-center gap-3">
-                  <BookOpen
-                    size={20}
-                    className="shrink-0 text-primary"
-                  />
-                  <span className="font-medium text-foreground">
-                    {doc.title}
-                  </span>
-                </div>
-              </Link>
-            )
-          )}
+            <Link
+              key={doc.id}
+              href={`/${applicationSlug}/docs/${doc.slug}`}
+              className="glass rounded-xl p-5 transition-all hover:neon-glow-cyan"
+            >
+              <div className="flex items-center gap-3">
+                <BookOpen
+                  size={20}
+                  className="shrink-0 text-primary"
+                />
+                <span className="font-medium text-foreground">
+                  {doc.title}
+                </span>
+              </div>
+            </Link>
+          ))}
         </div>
       )}
     </div>
