@@ -24,7 +24,7 @@ export default function LoginPage() {
         </div>
         <SignIn
           routing="hash"
-          afterSignInUrl="/admin"
+          fallbackRedirectUrl="/admin"
           appearance={{
             elements: {
               rootBox: "mx-auto",

@@ -84,7 +84,7 @@ export function AdminSidebar({ user }: { user: DbUser }) {
 
       {/* User section */}
       <div className="flex items-center gap-3 border-t border-border px-5 py-4">
-        <UserButton afterSignOutUrl="/" />
+        <UserButton />
         <div className="flex-1 min-w-0">
           <p className="truncate text-sm font-medium text-foreground">
             {user.name}

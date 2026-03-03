@@ -18,10 +18,7 @@ export default async function DocumentationPage() {
   `;
 
   const countMap = new Map(
-    docCounts.map((d: { application_id: number; count: string }) => [
-      d.application_id,
-      parseInt(d.count),
-    ])
+    docCounts.map((d) => [d.application_id, parseInt(d.count)])
   );
 
   return (
@@ -52,7 +49,7 @@ export default async function DocumentationPage() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {apps.map((app: { id: number; name: string; slug: string }) => (
+          {apps.map((app) => (
             <Link
               key={app.id}
               href={`/admin/applications/${app.id}`}
