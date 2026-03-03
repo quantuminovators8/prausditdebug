@@ -2,20 +2,26 @@ import type { Metadata } from "next";
 import { getDb } from "@/lib/db";
 import Link from "next/link";
 import { FileText, ArrowRight } from "lucide-react";
+import type { Application } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Documentation",
 };
 
+interface DocCount {
+  application_id: number;
+  count: string;
+}
+
 export default async function DocumentationPage() {
   const sql = getDb();
-  const apps = await sql`SELECT * FROM applications ORDER BY name ASC`;
+  const apps = (await sql`SELECT * FROM applications ORDER BY name ASC`) as Application[];
 
-  const docCounts = await sql`
+  const docCounts = (await sql`
     SELECT application_id, COUNT(*) as count
     FROM documentation
     GROUP BY application_id
-  `;
+  `) as DocCount[];
 
   const countMap = new Map(
     docCounts.map((d) => [d.application_id, parseInt(d.count)])

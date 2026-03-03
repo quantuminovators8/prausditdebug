@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { getDb } from "@/lib/db";
+import type { DbUser, Documentation } from "@/lib/types";
 
 async function checkAdmin() {
   const { userId } = await auth();
   if (!userId) return false;
   const sql = getDb();
-  const users = await sql`SELECT role FROM users WHERE clerk_id = ${userId}`;
+  const users = (await sql`SELECT role FROM users WHERE clerk_id = ${userId}`) as Pick<DbUser, "role">[];
   return users.length > 0 && (users[0].role === "admin" || users[0].role === "developer");
 }
 
@@ -28,11 +29,11 @@ export async function POST(req: NextRequest) {
 
     const sql = getDb();
 
-    const result = await sql`
+    const result = (await sql`
       INSERT INTO documentation (application_id, title, slug, parent_id, content, sort_order)
       VALUES (${application_id}, ${title}, ${slug}, ${parent_id ? parseInt(parent_id) : null}, ${content || ""}, ${sort_order || 0})
       RETURNING *
-    `;
+    `) as Documentation[];
 
     return NextResponse.json({ doc: result[0] });
   } catch (error) {

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getDb } from "@/lib/db";
 import { DocsSidebar } from "@/components/docs/docs-sidebar";
-import type { Documentation, DocTreeNode } from "@/lib/types";
+import type { Application, Documentation, DocTreeNode } from "@/lib/types";
 
 function buildDocTree(docs: Documentation[]): DocTreeNode[] {
   const map = new Map<number, DocTreeNode>();
@@ -34,7 +34,7 @@ export default async function DocsLayout({
   const sql = getDb();
 
   const apps =
-    await sql`SELECT * FROM applications WHERE slug = ${applicationSlug} AND status = 'published'`;
+    (await sql`SELECT * FROM applications WHERE slug = ${applicationSlug} AND status = 'published'`) as Application[];
   if (apps.length === 0) notFound();
 
   const app = apps[0];

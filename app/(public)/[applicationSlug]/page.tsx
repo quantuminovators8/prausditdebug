@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getDb } from "@/lib/db";
 import { ArrowRight, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { Application, Documentation } from "@/lib/types";
 
 export async function generateMetadata({
   params,
@@ -14,7 +15,7 @@ export async function generateMetadata({
   const { applicationSlug } = await params;
   const sql = getDb();
   const apps =
-    await sql`SELECT * FROM applications WHERE slug = ${applicationSlug} AND status = 'published'`;
+    (await sql`SELECT * FROM applications WHERE slug = ${applicationSlug} AND status = 'published'`) as Application[];
   if (apps.length === 0) return { title: "Not Found" };
   return {
     title: apps[0].name,
@@ -30,17 +31,17 @@ export default async function ApplicationPage({
   const { applicationSlug } = await params;
   const sql = getDb();
   const apps =
-    await sql`SELECT * FROM applications WHERE slug = ${applicationSlug} AND status = 'published'`;
+    (await sql`SELECT * FROM applications WHERE slug = ${applicationSlug} AND status = 'published'`) as Application[];
 
   if (apps.length === 0) notFound();
   const app = apps[0];
 
-  const docs = await sql`
+  const docs = (await sql`
     SELECT id, title, slug FROM documentation
     WHERE application_id = ${app.id} AND parent_id IS NULL
     ORDER BY sort_order ASC
     LIMIT 6
-  `;
+  `) as Pick<Documentation, "id" | "title" | "slug">[];
 
   return (
     <section className="px-6 pt-32 pb-24">

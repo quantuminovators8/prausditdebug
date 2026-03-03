@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { getDb } from "@/lib/db";
+import type { DbUser, Application } from "@/lib/types";
 
 async function checkAdmin() {
   const { userId } = await auth();
   if (!userId) return false;
   const sql = getDb();
-  const users = await sql`SELECT role FROM users WHERE clerk_id = ${userId}`;
+  const users = (await sql`SELECT role FROM users WHERE clerk_id = ${userId}`) as Pick<DbUser, "role">[];
   return users.length > 0 && (users[0].role === "admin" || users[0].role === "developer");
 }
 
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
 
     const sql = getDb();
 
-    const existing = await sql`SELECT id FROM applications WHERE slug = ${slug}`;
+    const existing = (await sql`SELECT id FROM applications WHERE slug = ${slug}`) as Pick<Application, "id">[];
     if (existing.length > 0) {
       return NextResponse.json(
         { error: "An application with this slug already exists" },
@@ -35,11 +36,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await sql`
+    const result = (await sql`
       INSERT INTO applications (name, slug, introduction, hero_image, status)
       VALUES (${name}, ${slug}, ${introduction || null}, ${hero_image || null}, ${status || "draft"})
       RETURNING *
-    `;
+    `) as Application[];
 
     return NextResponse.json({ application: result[0] });
   } catch (error) {
