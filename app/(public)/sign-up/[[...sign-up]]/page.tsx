@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { SignUp } from "@clerk/nextjs";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Sign Up",
   description: "Create a Prausdit account.",
