@@ -38,11 +38,11 @@ export default async function DocsLayout({
   if (apps.length === 0) notFound();
 
   const app = apps[0];
-  const docs = await sql`
+  const docs = (await sql`
     SELECT * FROM documentation
     WHERE application_id = ${app.id}
     ORDER BY sort_order ASC, created_at ASC
-  `;
+  `) as Documentation[];
 
   const docTree = buildDocTree(docs);
 
