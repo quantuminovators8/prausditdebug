@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useUser, SignInButton, UserButton } from "@clerk/nextjs";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -15,9 +14,35 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+function useClerkUser() {
+  if (!clerkEnabled) {
+    return { isSignedIn: false, isLoaded: true };
+  }
+  // eslint-disable-next-line react-hooks/rules-of-hooks, @typescript-eslint/no-require-imports
+  const { useUser } = require("@clerk/nextjs");
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  return useUser();
+}
+
+function ClerkSignInButton({ children }: { children: React.ReactNode }) {
+  if (!clerkEnabled) return null;
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { SignInButton } = require("@clerk/nextjs");
+  return <SignInButton mode="modal">{children}</SignInButton>;
+}
+
+function ClerkUserButton(props: Record<string, unknown>) {
+  if (!clerkEnabled) return null;
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { UserButton } = require("@clerk/nextjs");
+  return <UserButton {...props} />;
+}
+
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const { isSignedIn, isLoaded } = useUser();
+  const { isSignedIn, isLoaded } = useClerkUser();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -72,7 +97,7 @@ export function Navbar() {
           <div className="hidden items-center gap-2 md:flex">
             <ThemeToggle />
             {isLoaded && isSignedIn ? (
-              <UserButton
+              <ClerkUserButton
                 appearance={{
                   elements: {
                     avatarBox: "w-8 h-8",
@@ -80,14 +105,14 @@ export function Navbar() {
                 }}
               />
             ) : (
-              <SignInButton mode="modal">
+              <ClerkSignInButton>
                 <Button
                   size="sm"
                   className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium shadow-sm transition-all duration-300 hover:shadow-md"
                 >
                   Sign In
                 </Button>
-              </SignInButton>
+              </ClerkSignInButton>
             )}
           </div>
 
@@ -132,17 +157,17 @@ export function Navbar() {
                 <div className="mt-auto border-t border-border px-4 pt-4">
                   {isLoaded && isSignedIn ? (
                     <div className="flex items-center gap-3">
-                      <UserButton />
+                      <ClerkUserButton />
                       <span className="text-sm text-muted-foreground">Account</span>
                     </div>
                   ) : (
-                    <SignInButton mode="modal">
+                    <ClerkSignInButton>
                       <Button
                         className="w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium"
                       >
                         Sign In
                       </Button>
-                    </SignInButton>
+                    </ClerkSignInButton>
                   )}
                 </div>
               </SheetContent>
