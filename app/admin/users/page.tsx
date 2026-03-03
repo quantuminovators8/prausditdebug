@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getDb } from "@/lib/db";
 import { UsersClient } from "@/components/admin/users-client";
+import type { DbUser } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Users",
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
 
 export default async function UsersPage() {
   const sql = getDb();
-  const users = await sql`SELECT * FROM users ORDER BY created_at DESC`;
+  const users = (await sql`SELECT * FROM users ORDER BY created_at DESC`) as DbUser[];
 
   return (
     <div className="p-6 md:p-8">
