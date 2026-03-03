@@ -32,7 +32,7 @@ export function DocEditor({
         <Button
           onClick={handleSave}
           disabled={saving}
-          className="bg-[var(--neon-cyan)] text-[var(--background)] hover:bg-[var(--neon-cyan)]/90"
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
         >
           <Save size={16} className="mr-2" />
           {saving ? "Saving..." : "Save Content"}

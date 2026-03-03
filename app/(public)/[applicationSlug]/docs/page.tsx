@@ -66,7 +66,7 @@ export default async function DocsIndexPage({
                 <div className="flex items-center gap-3">
                   <BookOpen
                     size={20}
-                    className="shrink-0 text-[var(--neon-cyan)]"
+                    className="shrink-0 text-primary"
                   />
                   <span className="font-medium text-foreground">
                     {doc.title}

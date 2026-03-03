@@ -76,7 +76,7 @@ export default async function DocPage({
                 <Link
                   key={child.id}
                   href={`/${applicationSlug}/docs/${child.slug}`}
-                  className="rounded-lg border border-border p-3 text-sm text-foreground transition-colors hover:border-[var(--neon-cyan)]/30 hover:bg-secondary"
+                  className="rounded-lg border border-border p-3 text-sm text-foreground transition-colors hover:border-primary/30 hover:bg-secondary"
                 >
                   {child.title}
                 </Link>

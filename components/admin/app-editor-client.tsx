@@ -249,7 +249,7 @@ export function AppEditorClient({
               <Button
                 type="submit"
                 disabled={saving}
-                className="bg-[var(--neon-cyan)] text-[var(--background)] hover:bg-[var(--neon-cyan)]/90"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <Save size={16} className="mr-2" />
                 {saving ? "Saving..." : "Save Changes"}
@@ -268,7 +268,7 @@ export function AppEditorClient({
               <DialogTrigger asChild>
                 <Button
                   size="sm"
-                  className="bg-[var(--neon-cyan)] text-[var(--background)] hover:bg-[var(--neon-cyan)]/90"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Plus size={14} className="mr-1" />
                   New Page
@@ -325,7 +325,7 @@ export function AppEditorClient({
                   </div>
                   <Button
                     type="submit"
-                    className="bg-[var(--neon-cyan)] text-[var(--background)] hover:bg-[var(--neon-cyan)]/90"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90"
                   >
                     Create Page
                   </Button>

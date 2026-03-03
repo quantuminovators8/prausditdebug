@@ -97,7 +97,7 @@ export function ApplicationsList({
         </p>
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-[var(--neon-cyan)] text-[var(--background)] hover:bg-[var(--neon-cyan)]/90">
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
               <Plus size={16} className="mr-2" />
               New Application
             </Button>
@@ -166,7 +166,7 @@ export function ApplicationsList({
               <Button
                 type="submit"
                 disabled={loading}
-                className="bg-[var(--neon-cyan)] text-[var(--background)] hover:bg-[var(--neon-cyan)]/90"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 {loading ? "Creating..." : "Create Application"}
               </Button>
