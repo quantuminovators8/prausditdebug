@@ -342,7 +342,7 @@ export function AppEditorClient({
             ) : (
               <div className="divide-y divide-border">
                 {docs
-                  .filter((d) => d.parent_id === null)
+                  .filter((d) => d.parentId === null)
                   .map((doc) => (
                     <div key={doc.id}>
                       <div className="flex items-center gap-3 px-4 py-3 hover:bg-secondary/50">
@@ -379,7 +379,7 @@ export function AppEditorClient({
                       </div>
                       {/* Children */}
                       {docs
-                        .filter((c) => c.parent_id === doc.id)
+                        .filter((c) => c.parentId === doc.id)
                         .map((child) => (
                           <div
                             key={child.id}
