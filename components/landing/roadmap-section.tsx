@@ -1,3 +1,5 @@
+import { Card, CardContent } from "@/components/ui/card";
+
 const phases = [
   {
     phase: "Phase I",
@@ -35,10 +37,10 @@ const phases = [
 
 export function RoadmapSection() {
   return (
-    <section className="py-24 px-6 bg-[var(--secondary)]/30">
+    <section className="py-24 px-6 bg-secondary/30">
       <div className="mx-auto max-w-4xl">
         <div className="mb-16 text-center">
-          <p className="mb-3 text-sm font-medium uppercase tracking-widest text-[var(--neon-purple)]">
+          <p className="mb-3 text-sm font-medium uppercase tracking-widest text-accent">
             Roadmap
           </p>
           <h2 className="mb-6 text-3xl font-bold text-foreground text-balance md:text-4xl">
@@ -61,9 +63,9 @@ export function RoadmapSection() {
                 {/* Dot */}
                 <div className="absolute left-6 z-10 md:left-1/2 -translate-x-1/2">
                   <div
-                    className={`h-3 w-3 rounded-full ${
+                    className={`h-3 w-3 rounded-full transition-all ${
                       p.active
-                        ? "bg-[var(--neon-cyan)] shadow-[0_0_12px_rgba(0,245,255,0.6)]"
+                        ? "bg-primary dark:shadow-[0_0_12px_rgba(0,245,255,0.6)]"
                         : "bg-border"
                     }`}
                   />
@@ -71,32 +73,36 @@ export function RoadmapSection() {
 
                 {/* Content */}
                 <div className="ml-14 w-full md:ml-0 md:w-[calc(50%-2rem)]">
-                  <div
-                    className={`glass rounded-xl p-6 ${
-                      p.active ? "neon-border-cyan neon-glow-cyan" : ""
+                  <Card
+                    className={`rounded-2xl border transition-all duration-300 ${
+                      p.active
+                        ? "border-primary/30 shadow-sm dark:shadow-[0_0_20px_rgba(0,245,255,0.06)]"
+                        : "border-border"
                     }`}
                   >
-                    <div className="mb-2 flex items-center gap-3">
-                      <span className="text-xs font-bold uppercase tracking-widest text-[var(--neon-cyan)]">
-                        {p.phase}
-                      </span>
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                          p.active
-                            ? "bg-[var(--neon-cyan)]/10 text-[var(--neon-cyan)]"
-                            : "bg-secondary text-muted-foreground"
-                        }`}
-                      >
-                        {p.status}
-                      </span>
-                    </div>
-                    <h3 className="mb-2 text-lg font-semibold text-foreground">
-                      {p.title}
-                    </h3>
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      {p.description}
-                    </p>
-                  </div>
+                    <CardContent className="p-6">
+                      <div className="mb-2 flex items-center gap-3">
+                        <span className="text-xs font-bold uppercase tracking-widest text-primary">
+                          {p.phase}
+                        </span>
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                            p.active
+                              ? "bg-primary/10 text-primary"
+                              : "bg-secondary text-muted-foreground"
+                          }`}
+                        >
+                          {p.status}
+                        </span>
+                      </div>
+                      <h3 className="mb-2 text-lg font-semibold text-card-foreground">
+                        {p.title}
+                      </h3>
+                      <p className="text-sm leading-relaxed text-muted-foreground">
+                        {p.description}
+                      </p>
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
             ))}

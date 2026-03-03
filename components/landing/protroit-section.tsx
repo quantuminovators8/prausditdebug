@@ -1,11 +1,5 @@
-import {
-  Cpu,
-  Brain,
-  Eye,
-  Shield,
-  Layers,
-  Gauge,
-} from "lucide-react";
+import { Cpu, Brain, Eye, Shield, Layers, Gauge } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 const capabilities = [
   {
@@ -48,10 +42,10 @@ const capabilities = [
 
 export function ProtoitSection() {
   return (
-    <section className="py-24 px-6 bg-[var(--secondary)]/30">
+    <section className="py-24 px-6 bg-secondary/30">
       <div className="mx-auto max-w-6xl">
         <div className="mb-16 text-center">
-          <p className="mb-3 text-sm font-medium uppercase tracking-widest text-[var(--neon-purple)]">
+          <p className="mb-3 text-sm font-medium uppercase tracking-widest text-accent">
             Flagship Product
           </p>
           <h2 className="mb-6 text-3xl font-bold text-foreground text-balance md:text-4xl">
@@ -66,20 +60,22 @@ export function ProtoitSection() {
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {capabilities.map((cap) => (
-            <div
+            <Card
               key={cap.title}
-              className="glass rounded-xl p-6 transition-all hover:neon-glow-purple"
+              className="rounded-2xl border-border bg-card transition-all duration-300 hover:shadow-md hover:scale-[1.02] dark:hover:shadow-[0_0_20px_rgba(138,43,226,0.08)]"
             >
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--neon-purple)]/10">
-                <cap.icon size={24} className="text-[var(--neon-purple)]" />
-              </div>
-              <h3 className="mb-2 text-lg font-semibold text-foreground">
-                {cap.title}
-              </h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {cap.description}
-              </p>
-            </div>
+              <CardContent className="p-6">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-accent/10">
+                  <cap.icon size={24} className="text-accent" />
+                </div>
+                <h3 className="mb-2 text-lg font-semibold text-card-foreground">
+                  {cap.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  {cap.description}
+                </p>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>

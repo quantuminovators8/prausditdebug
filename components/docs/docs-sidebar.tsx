@@ -31,21 +31,21 @@ function DocNavItem({
         {hasChildren && (
           <button
             onClick={() => setOpen(!open)}
-            className="mr-1 rounded p-0.5 text-muted-foreground hover:text-foreground"
+            className="mr-1 rounded p-0.5 text-muted-foreground hover:text-foreground transition-colors"
             aria-label={open ? "Collapse" : "Expand"}
           >
             <ChevronRight
               size={14}
-              className={cn("transition-transform", open && "rotate-90")}
+              className={cn("transition-transform duration-200", open && "rotate-90")}
             />
           </button>
         )}
         <Link
           href={href}
           className={cn(
-            "flex-1 rounded-md px-3 py-1.5 text-sm transition-colors",
+            "flex-1 rounded-md px-3 py-1.5 text-sm transition-all duration-200",
             isActive
-              ? "bg-[var(--neon-cyan)]/10 text-[var(--neon-cyan)] font-medium"
+              ? "bg-primary/10 text-primary font-medium"
               : "text-muted-foreground hover:text-foreground hover:bg-secondary",
             !hasChildren && "ml-5"
           )}
@@ -84,11 +84,11 @@ export function DocsSidebar({
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const content = (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col bg-card">
       <div className="border-b border-border px-4 py-4">
         <Link
           href={`/${appSlug}`}
-          className="text-sm font-semibold text-foreground hover:text-[var(--neon-cyan)]"
+          className="text-sm font-semibold text-foreground hover:text-primary transition-colors"
         >
           {appName}
         </Link>
@@ -121,7 +121,7 @@ export function DocsSidebar({
       {/* Mobile toggle */}
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="fixed bottom-6 right-6 z-50 rounded-full bg-[var(--neon-cyan)] p-3 text-[var(--background)] shadow-lg md:hidden"
+        className="fixed bottom-6 right-6 z-50 rounded-full bg-primary p-3 text-primary-foreground shadow-lg md:hidden"
         aria-label="Toggle docs nav"
       >
         {mobileOpen ? <X size={20} /> : <Menu size={20} />}
@@ -130,7 +130,7 @@ export function DocsSidebar({
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 md:hidden"
+          className="fixed inset-0 z-40 bg-foreground/20 backdrop-blur-sm md:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -138,7 +138,7 @@ export function DocsSidebar({
       {/* Mobile sidebar */}
       <aside
         className={cn(
-          "fixed top-24 left-0 z-40 h-[calc(100vh-6rem)] w-72 border-r border-border bg-background transition-transform md:hidden",
+          "fixed top-24 left-0 z-40 h-[calc(100vh-6rem)] w-72 border-r border-border bg-card transition-transform duration-300 md:hidden",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >

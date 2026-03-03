@@ -1,13 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const _inter = Inter({ subsets: ["latin"] });
+const _jetbrainsMono = JetBrains_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
@@ -35,7 +36,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0A0A0F",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F8FAFC" },
+    { media: "(prefers-color-scheme: dark)", color: "#0A0A0F" },
+  ],
   width: "device-width",
   initialScale: 1,
 };
@@ -58,19 +62,23 @@ export default function RootLayout({
         },
       }}
     >
-      <html lang="en">
+      <html lang="en" suppressHydrationWarning>
         <body className="font-sans antialiased">
-          {children}
-          <Toaster
-            theme="dark"
-            toastOptions={{
-              style: {
-                background: "#111118",
-                border: "1px solid #222233",
-                color: "#E8E8ED",
-              },
-            }}
-          />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Toaster
+              toastOptions={{
+                classNames: {
+                  toast: "bg-card text-card-foreground border-border",
+                },
+              }}
+            />
+          </ThemeProvider>
           <Analytics />
         </body>
       </html>

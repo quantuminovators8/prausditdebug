@@ -1,4 +1,5 @@
 import { Quote } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 const testimonials = [
   {
@@ -26,7 +27,7 @@ export function TestimonialsSection() {
     <section className="py-24 px-6">
       <div className="mx-auto max-w-6xl">
         <div className="mb-16 text-center">
-          <p className="mb-3 text-sm font-medium uppercase tracking-widest text-[var(--neon-cyan)]">
+          <p className="mb-3 text-sm font-medium uppercase tracking-widest text-primary">
             What People Say
           </p>
           <h2 className="mb-6 text-3xl font-bold text-foreground text-balance md:text-4xl">
@@ -36,21 +37,23 @@ export function TestimonialsSection() {
 
         <div className="grid gap-6 md:grid-cols-3">
           {testimonials.map((t) => (
-            <div
+            <Card
               key={t.name}
-              className="glass rounded-xl p-8 transition-all hover:neon-glow-cyan"
+              className="rounded-2xl border-border bg-card transition-all duration-300 hover:shadow-md hover:scale-[1.02] dark:hover:shadow-[0_0_20px_rgba(0,245,255,0.06)]"
             >
-              <Quote size={24} className="mb-4 text-[var(--neon-cyan)]/40" />
-              <p className="mb-6 text-sm leading-relaxed text-muted-foreground italic">
-                {`"${t.quote}"`}
-              </p>
-              <div>
-                <p className="text-sm font-semibold text-foreground">
-                  {t.name}
+              <CardContent className="p-8">
+                <Quote size={24} className="mb-4 text-primary/40" />
+                <p className="mb-6 text-sm leading-relaxed text-muted-foreground italic">
+                  {`"${t.quote}"`}
                 </p>
-                <p className="text-xs text-muted-foreground">{t.role}</p>
-              </div>
-            </div>
+                <div>
+                  <p className="text-sm font-semibold text-card-foreground">
+                    {t.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{t.role}</p>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>

@@ -12,7 +12,7 @@ export default function ContactPage() {
     <section className="px-6 pt-32 pb-24">
       <div className="mx-auto max-w-2xl">
         <div className="mb-10 text-center">
-          <p className="mb-3 text-sm font-medium uppercase tracking-widest text-[var(--neon-cyan)]">
+          <p className="mb-3 text-sm font-medium uppercase tracking-widest text-primary">
             Contact
           </p>
           <h1 className="mb-4 text-3xl font-bold text-foreground text-balance md:text-4xl">
