@@ -2,24 +2,31 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { ArrowRight, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+export const runtime = "nodejs";
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ applicationSlug: string }>;
 }): Promise<Metadata> {
-  const { applicationSlug } = await params;
-  const app = await prisma.application.findUnique({
-    where: { slug: applicationSlug },
-  });
-  if (!app || app.status !== "published") return { title: "Not Found" };
-  return {
-    title: app.name,
-    description: app.introduction || `${app.name} by Prausdit`,
-  };
+  if (!isDatabaseConfigured) return { title: "Not Found" };
+  try {
+    const { applicationSlug } = await params;
+    const app = await prisma.application.findUnique({
+      where: { slug: applicationSlug },
+    });
+    if (!app || app.status !== "published") return { title: "Not Found" };
+    return {
+      title: app.name,
+      description: app.introduction || `${app.name} by Prausdit`,
+    };
+  } catch {
+    return { title: "Not Found" };
+  }
 }
 
 export default async function ApplicationPage({
@@ -27,19 +34,28 @@ export default async function ApplicationPage({
 }: {
   params: Promise<{ applicationSlug: string }>;
 }) {
+  if (!isDatabaseConfigured) notFound();
+
   const { applicationSlug } = await params;
 
-  const app = await prisma.application.findUnique({
-    where: { slug: applicationSlug },
-  });
-  if (!app || app.status !== "published") notFound();
+  let app;
+  let docs: { id: number; title: string; slug: string }[] = [];
+  try {
+    app = await prisma.application.findUnique({
+      where: { slug: applicationSlug },
+    });
+    if (!app || app.status !== "published") notFound();
 
-  const docs = await prisma.documentation.findMany({
-    where: { applicationId: app.id, parentId: null },
-    orderBy: { sortOrder: "asc" },
-    take: 6,
-    select: { id: true, title: true, slug: true },
-  });
+    docs = await prisma.documentation.findMany({
+      where: { applicationId: app.id, parentId: null },
+      orderBy: { sortOrder: "asc" },
+      take: 6,
+      select: { id: true, title: true, slug: true },
+    });
+  } catch (error) {
+    console.error("Application page query error:", error);
+    notFound();
+  }
 
   return (
     <section className="px-6 pt-32 pb-24">

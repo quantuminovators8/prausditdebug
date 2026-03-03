@@ -1,21 +1,28 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { BookOpen } from "lucide-react";
+
+export const runtime = "nodejs";
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ applicationSlug: string }>;
 }): Promise<Metadata> {
-  const { applicationSlug } = await params;
-  const app = await prisma.application.findUnique({
-    where: { slug: applicationSlug },
-    select: { name: true, status: true },
-  });
-  if (!app || app.status !== "published") return { title: "Not Found" };
-  return { title: `Documentation - ${app.name}` };
+  if (!isDatabaseConfigured) return { title: "Not Found" };
+  try {
+    const { applicationSlug } = await params;
+    const app = await prisma.application.findUnique({
+      where: { slug: applicationSlug },
+      select: { name: true, status: true },
+    });
+    if (!app || app.status !== "published") return { title: "Not Found" };
+    return { title: `Documentation - ${app.name}` };
+  } catch {
+    return { title: "Not Found" };
+  }
 }
 
 export default async function DocsIndexPage({
@@ -23,17 +30,26 @@ export default async function DocsIndexPage({
 }: {
   params: Promise<{ applicationSlug: string }>;
 }) {
+  if (!isDatabaseConfigured) notFound();
+
   const { applicationSlug } = await params;
 
-  const app = await prisma.application.findUnique({
-    where: { slug: applicationSlug },
-  });
-  if (!app || app.status !== "published") notFound();
+  let app;
+  let docs: Awaited<ReturnType<typeof prisma.documentation.findMany>> = [];
+  try {
+    app = await prisma.application.findUnique({
+      where: { slug: applicationSlug },
+    });
+    if (!app || app.status !== "published") notFound();
 
-  const docs = await prisma.documentation.findMany({
-    where: { applicationId: app.id, parentId: null },
-    orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
-  });
+    docs = await prisma.documentation.findMany({
+      where: { applicationId: app.id, parentId: null },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    });
+  } catch (error) {
+    console.error("Docs index page query error:", error);
+    notFound();
+  }
 
   return (
     <div className="max-w-3xl">
