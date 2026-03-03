@@ -1,16 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { Suspense } from "react";
-import dynamic from "next/dynamic";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ClerkProviderWrapper } from "@/components/clerk-provider-wrapper";
+import { VercelAnalytics } from "@/components/analytics";
 import "./globals.css";
-
-const VercelAnalytics = dynamic(
-  () => import("@vercel/analytics/next").then((mod) => mod.Analytics),
-  { ssr: false }
-);
 
 const _inter = Inter({ subsets: ["latin"] });
 const _jetbrainsMono = JetBrains_Mono({ subsets: ["latin"] });
