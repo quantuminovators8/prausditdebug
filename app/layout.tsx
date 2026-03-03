@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
-import { dark } from "@clerk/themes";
 import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -52,13 +51,8 @@ export default function RootLayout({
   return (
     <ClerkProvider
       appearance={{
-        baseTheme: dark,
         variables: {
-          colorPrimary: "#00F5FF",
-          colorBackground: "#111118",
-          colorText: "#E8E8ED",
-          colorInputBackground: "#1A1A28",
-          colorInputText: "#E8E8ED",
+          colorPrimary: "#0891B2",
         },
       }}
     >
