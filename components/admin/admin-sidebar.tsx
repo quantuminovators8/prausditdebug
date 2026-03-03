@@ -1,5 +1,6 @@
 "use client";
 
+import { lazy, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -20,15 +21,25 @@ import type { DbUser } from "@/lib/types";
 
 const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
+/**
+ * Lazily load the Clerk UserButton only when keys are available.
+ * Uses the same lazy-import pattern as the Navbar for consistency.
+ */
+const LazyUserButton = clerkEnabled
+  ? lazy(() =>
+      import("@clerk/nextjs").then((mod) => ({
+        default: mod.UserButton,
+      }))
+    )
+  : null;
+
 function ClerkUserButtonSafe() {
-  if (!clerkEnabled) return null;
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { UserButton } = require("@clerk/nextjs");
-    return <UserButton />;
-  } catch {
-    return null;
-  }
+  if (!LazyUserButton) return null;
+  return (
+    <Suspense fallback={<div className="h-8 w-8 rounded-full bg-secondary animate-pulse" />}>
+      <LazyUserButton />
+    </Suspense>
+  );
 }
 
 const navItems = [
