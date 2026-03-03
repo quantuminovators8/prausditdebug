@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getDb } from "@/lib/db";
 import { ApplicationsList } from "@/components/admin/applications-list";
+import type { Application } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Applications",
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
 
 export default async function ApplicationsPage() {
   const sql = getDb();
-  const applications = await sql`SELECT * FROM applications ORDER BY created_at DESC`;
+  const applications = (await sql`SELECT * FROM applications ORDER BY created_at DESC`) as Application[];
 
   return (
     <div className="p-6 md:p-8">
